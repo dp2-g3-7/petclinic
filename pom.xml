@@ -12,7 +12,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.4.RELEASE</version>
     </parent>
-    <name>petclinic</name>
+    <name>petclinic-g3-7</name>
 
     <properties>
 
@@ -32,6 +32,11 @@
         <rest-assured.version>4.2.0</rest-assured.version>
         <selenium.version>3.141.59</selenium.version>
         <cucumber.version>5.5.0</cucumber.version>
+        
+        <!-- SonarCloud -->
+        <sonar.projectKey>dp2-g3-7_petclinic</sonar.projectKey>
+  		<sonar.organization>dp2-g3-7</sonar.organization>
+  		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>
