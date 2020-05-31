@@ -31,7 +31,7 @@ public class AppointmentService {
 	}
 
 	@Transactional
-	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "appointmentByPetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
+	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
 	public void saveAppointment(final Appointment appointment, Integer vetId) throws VeterinarianNotAvailableException {
 		if (!isPossibleAppointment(appointment, vetId)) {
 		    throw new VeterinarianNotAvailableException();
@@ -45,13 +45,13 @@ public class AppointmentService {
 	}
 
 	@Transactional
-	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "appointmentByPetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
+	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
 	public void deleteAppointment(final Appointment appointment) {
 		this.appointmentRepository.delete(appointment);
 	}
 
     @Transactional
-	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "appointmentByPetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
+	@CacheEvict(cacheNames = {"appointmentsByVetAndDate", "nextAppointmentsByVetAndDate"}, allEntries = true)
     public void editAppointment(final Appointment appointment) throws VeterinarianNotAvailableException {
 	    int vetId = appointment.getVet().getId();
 	    Appointment appointmentToUpdate = this.appointmentRepository.findById(appointment.getId());
