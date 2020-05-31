@@ -65,8 +65,9 @@ public class PetService {
 	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
 		if (existOtherPetWithSameName(pet)) {
 			throw new DuplicatedPetNameException();
-		} else
+		} else {
 			petRepository.save(pet);
+		}
 	}
 	public Boolean existOtherPetWithSameName(Pet newPet) {
 		Boolean res= false;
@@ -75,7 +76,7 @@ public class PetService {
 		for (Pet pet : ownerPets) {
 			String compName = pet.getName();
 			compName = compName.toLowerCase();
-			if (compName.equals(petName) && pet.getId()!=newPet.getId()) {
+			if (compName.equals(petName) && !pet.getId().equals(newPet.getId())) {
 				res= true;
 			}
 		}

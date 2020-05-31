@@ -1,9 +1,13 @@
 package org.springframework.samples.petclinic.ui;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -26,6 +30,8 @@ public class CreateTreatmentsUITest {
 	@LocalServerPort
 	private int port;
 
+	private int nAppointments;
+	
 	private WebDriver driver;
 	private StringBuffer verificationErrors = new StringBuffer();
 
@@ -41,6 +47,7 @@ public class CreateTreatmentsUITest {
 		logIn();
 		driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a/span")).click();
 		driver.findElement(By.linkText("Treatments")).click();
+		nAppointments = getNumberOfTreatments();
 		driver.findElement(By.linkText("Add New Treatment")).click();
 		driver.findElement(By.id("name")).click();
 		driver.findElement(By.id("name")).clear();
@@ -53,6 +60,7 @@ public class CreateTreatmentsUITest {
 		driver.findElement(By.id("timeLimit")).sendKeys("2020/12/01");
 		driver.findElement(By.xpath("//option[@value='5']")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		assertEquals(getNumberOfTreatments(), nAppointments + 1);
 		logOut();
 	
 		
@@ -67,7 +75,7 @@ public class CreateTreatmentsUITest {
 		driver.findElement(By.linkText("Add New Treatment")).click();
 		driver.findElement(By.id("name")).click();
 		driver.findElement(By.id("name")).clear();
-		driver.findElement(By.id("name")).sendKeys("Frenadol ingestion");
+		driver.findElement(By.id("name")).sendKeys("Codein injection");
 		driver.findElement(By.id("description")).click();
 		driver.findElement(By.id("description")).clear();
 		driver.findElement(By.id("description")).sendKeys("The pet must take frenadol 3 times per day during 1 month");
@@ -76,6 +84,7 @@ public class CreateTreatmentsUITest {
 		driver.findElement(By.id("timeLimit")).sendKeys("2020/10/20");
 		driver.findElement(By.xpath("//body/div")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		assertEquals(getNumberOfTreatments(), nAppointments + 2);
 		logOut();
 		
 	}
@@ -96,9 +105,15 @@ public class CreateTreatmentsUITest {
 		driver.findElement(By.id("timeLimit")).sendKeys("2020/11/11");
 		driver.findElement(By.xpath("//form[@id='treatment']/div[2]/div")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		List<String> spans = driver.findElements(By.tagName("span")).stream().map(s -> s.getText()).collect(Collectors.toList());
+		Assert.assertTrue(spans.contains("no puede estar vacío"));
 		logOut();
 	}
 
+	private int getNumberOfTreatments() {
+		  return driver.findElements(By.xpath("//table[@id='treatmentsTable']/tbody/tr")).size()-1;
+	  }
+	
 	private void logIn() {
 		driver.get("http://localhost:" + port + "/");
 		driver.findElement(By.xpath("//a[contains(@href, '/login')]")).click();

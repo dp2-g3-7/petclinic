@@ -52,6 +52,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class OwnerController {
 
+	private static final String OWNER = "owner";
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
@@ -79,7 +80,7 @@ public class OwnerController {
 	public String initCreationForm(ModelMap model) {
 		if (isAdmin()) {
 			Owner owner = new Owner();
-			model.put("owner", owner);
+			model.put(OWNER, owner);
 			return OwnerController.VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -90,7 +91,7 @@ public class OwnerController {
 	public String processCreationForm(@Valid Owner owner, BindingResult result, ModelMap model) {
 		if (isAdmin()) {
 			if (result.hasErrors()) {
-				model.addAttribute("owner", owner);
+				model.addAttribute(OWNER, owner);
 				return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 			} else {
 				// creating owner, user and authorities
@@ -113,7 +114,7 @@ public class OwnerController {
 	@GetMapping(value = "/owners/find")
 	public String initFindForm(final Map<String, Object> model) {
 		if (isAdmin()) {
-			model.put("owner", new Owner());
+			model.put(OWNER, new Owner());
 			return "owners/findOwners";
 		} else {
 			return REDIRECT_TO_OUPS;
@@ -155,7 +156,7 @@ public class OwnerController {
 	public String initUpdateOwnerForm(@PathVariable("ownerId") final int ownerId, final ModelMap model) {
 		if (securityAccessRequestProfile(ownerId)) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			model.addAttribute("owner", owner);
+			model.addAttribute(OWNER, owner);
 			model.addAttribute("username", owner.getUser().getUsername());
 			model.addAttribute("edit", true);
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
@@ -174,7 +175,7 @@ public class OwnerController {
 			model.addAttribute("username", ownerToUpdate.getUser().getUsername());
 
 			if (result.hasErrors()) {
-				model.put("owner", owner);
+				model.put(OWNER, owner);
 				return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 			} else {
 
@@ -208,7 +209,7 @@ public class OwnerController {
 					this.petService.countMyPetsAcceptedByActive(PetRegistrationStatus.ACCEPTED, false, ownerId) != 0);
 			return mav;
 		} else {
-			ModelAndView mavOups = new ModelAndView("redirect:/oups");
+			ModelAndView mavOups = new ModelAndView(REDIRECT_TO_OUPS);
 			return mavOups;
 		}
 	}
@@ -225,11 +226,11 @@ public class OwnerController {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Owner owner = new Owner();
-		if (authority.equals("owner")) {
+		if (authority.equals(OWNER)) {
 			owner = this.ownerService.findOwnerById(ownerId);
 		}
 
-		return authority.equals("admin") || authority.equals("owner") && username.equals(owner.getUser().getUsername());
+		return authority.equals("admin") || authority.equals(OWNER) && username.equals(owner.getUser().getUsername());
 	}
 
 }

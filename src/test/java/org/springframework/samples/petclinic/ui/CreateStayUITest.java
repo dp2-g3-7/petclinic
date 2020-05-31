@@ -1,9 +1,13 @@
 package org.springframework.samples.petclinic.ui;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -13,6 +17,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -48,6 +53,9 @@ public class CreateStayUITest {
 		driver.findElement(By.id("releaseDate")).sendKeys("2022/10/22");
 		driver.findElement(By.xpath("//form[@id='stay']/div[2]/div")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		WebElement stayTable = driver.findElement(By.id("medicinesTable"));
+		List<WebElement> staysList = stayTable.findElements(By.id("stay"));
+		assertEquals(staysList.size(), 1);
 		logOut();
 	}
 	
@@ -58,21 +66,14 @@ public class CreateStayUITest {
 		petsAndNewStay();
 		driver.findElement(By.id("registerDate")).click();
 		driver.findElement(By.id("registerDate")).clear();
-		driver.findElement(By.id("registerDate")).sendKeys("2022/10/20");
+		driver.findElement(By.id("registerDate")).sendKeys("2020/10/02");
 		driver.findElement(By.id("releaseDate")).click();
 		driver.findElement(By.id("releaseDate")).clear();
-		driver.findElement(By.id("releaseDate")).sendKeys("2022/10/21");
+		driver.findElement(By.id("releaseDate")).sendKeys("2020/10/04");
 		driver.findElement(By.xpath("//form[@id='stay']/div[2]/div")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
-		driver.findElement(By.id("registerDate")).click();
-		driver.findElement(By.id("registerDate")).clear();
-		driver.findElement(By.id("registerDate")).sendKeys("2022/11/20");
-		driver.findElement(By.xpath("//form[@id='stay']/div")).click();
-		driver.findElement(By.id("releaseDate")).click();
-		driver.findElement(By.id("releaseDate")).clear();
-		driver.findElement(By.id("releaseDate")).sendKeys("2022/11/21");
-		driver.findElement(By.xpath("//form[@id='stay']/div[2]/div")).click();
-		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		List<String> spans = driver.findElements(By.tagName("span")).stream().map(s -> s.getText()).collect(Collectors.toList());
+		Assert.assertTrue(spans.contains("There exists already a Stay"));	
 		logOut();
 	}
 	

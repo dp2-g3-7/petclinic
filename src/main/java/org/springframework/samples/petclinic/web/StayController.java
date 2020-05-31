@@ -55,6 +55,24 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class StayController {
 
+	private static final String PETS_CREATE_OR_UPDATE_STAY_FORM_ADMIN = "pets/createOrUpdateStayFormAdmin";
+
+	private static final String STATUS = "status";
+
+	private static final String STAY_ALREADY_CONFIRMED_OR_REJECTED_BY_ADMIN = "Stay already confirmed or rejected by admin";
+
+	private static final String RELEASE_DATE = "releaseDate";
+
+	private static final String THERE_EXISTS_ALREADY_A_STAY = "There exists already a Stay";
+
+	private static final String PETS_CREATE_OR_UPDATE_STAY_FORM = "pets/createOrUpdateStayForm";
+
+	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
+
+	private static final String STAYS = "stays";
+
+	private static final String OWNER = "owner";
+
 	private final StayService stayService;
 
 	private final OwnerService ownerService;
@@ -95,7 +113,7 @@ public class StayController {
 
 		boolean isHisPetAcceptedAndActive = false;
 		String ownerUsername = null;
-		if (authority.equals("owner")) {
+		if (authority.equals(OWNER)) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
 						
@@ -103,7 +121,7 @@ public class StayController {
 					&& pet.getStatus().equals(PetRegistrationStatus.ACCEPTED);
 			ownerUsername = owner.getUser().getUsername();
 		}
-		return authority.equals("owner") && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
+		return authority.equals(OWNER) && username.equals(ownerUsername) && isHisPetAcceptedAndActive;
 	}
 	
 	private boolean isAdmin() {
@@ -119,7 +137,7 @@ public class StayController {
 				.collect(Collectors.toList()).get(0).toString();
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Boolean res = false;
-		if (authority.equals("owner")) {
+		if (authority.equals(OWNER)) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			Pet pet = this.petService.findPetById(petId);
 
@@ -132,17 +150,17 @@ public class StayController {
 		}
 
 		if (res || authority.equals("admin")) {
-			model.put("stays", this.stayService.findStaysByPetId(petId));
+			model.put(STAYS, this.stayService.findStaysByPetId(petId));
 			model.put("pet", this.petService.findPetById(petId));
 			return "pets/staysList";
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
 	@GetMapping(value = "/admin/stays")
 	public String initStayListForAdm(ModelMap model) {
-		model.put("stays", this.stayService.findAllStays());
+		model.put(STAYS, this.stayService.findAllStays());
 		return "pets/staysListAdmin";
 	}
 
@@ -155,9 +173,9 @@ public class StayController {
 			pet.addStay(stay);
 			model.put("stay", stay);
 			model.put("pet", pet);
-			return "pets/createOrUpdateStayForm";
+			return PETS_CREATE_OR_UPDATE_STAY_FORM;
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
@@ -168,21 +186,21 @@ public class StayController {
 		if (this.securityAccessRequest(ownerId, petId) || isAdmin()) {
 			if (result.hasErrors()) {
 				model.put("pet", pet);
-				return "pets/createOrUpdateStayForm";
+				return PETS_CREATE_OR_UPDATE_STAY_FORM;
 			} else {
 				try {
 					stay.setPet(pet);
 					this.stayService.saveStay(stay);
 				} catch (MaximumStaysReached ex) {
-					result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+					result.rejectValue(RELEASE_DATE, THERE_EXISTS_ALREADY_A_STAY, THERE_EXISTS_ALREADY_A_STAY);
 					model.put("pet", pet);
-					return "pets/createOrUpdateStayForm";
+					return PETS_CREATE_OR_UPDATE_STAY_FORM;
 				}
 
 				return "redirect:/owners/{ownerId}/pets/{petId}/stays";
 			}
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
@@ -192,7 +210,7 @@ public class StayController {
 		Pet pet = petService.findPetById(petId);
 		Stay stay = stayService.findStayById(stayId);
 		ModelAndView mav = new ModelAndView("pets/staysList");
-		mav.addObject("stays", pet.getStays());
+		mav.addObject(STAYS, pet.getStays());
 		mav.addObject("pet", pet);
 
 		Boolean isYourStay = stay.getPet().getOwner().getId().equals(ownerId);
@@ -203,7 +221,7 @@ public class StayController {
 			} catch (StayAlreadyConfirmed ex) {
 				mav.addObject("errors", "This stay is already confirmed");
 			}
-			mav.addObject("stays", pet.getStays());
+			mav.addObject(STAYS, pet.getStays());
 			return mav;
 		} else {
 			return new ModelAndView("exception");
@@ -219,9 +237,9 @@ public class StayController {
 			modelMap.put("stay", stay);
 			modelMap.put("edit", true);
 			modelMap.put("pet", pet);
-			return "pets/createOrUpdateStayForm";
+			return PETS_CREATE_OR_UPDATE_STAY_FORM;
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
@@ -234,28 +252,28 @@ public class StayController {
 			modelMap.put("edit", true);
 			if (result.hasErrors()) {
 				modelMap.put("pet", pet);
-				return "pets/createOrUpdateStayForm";
+				return PETS_CREATE_OR_UPDATE_STAY_FORM;
 			} else {
 				try {
 					Stay stayToUpdate = this.stayService.findStayById(stayId);
-					BeanUtils.copyProperties(stayToUpdate, stay, "registerDate", "releaseDate");
+					BeanUtils.copyProperties(stayToUpdate, stay, "registerDate", RELEASE_DATE);
 					this.stayService.editStay(stay);
 				} catch (MaximumStaysReached | DateNotAllowed | StayAlreadyConfirmed e) {
 					if (e.getClass().equals(MaximumStaysReached.class)) {
-						result.rejectValue("releaseDate", "There exists already a Stay", "There exists already a Stay");
+						result.rejectValue(RELEASE_DATE, THERE_EXISTS_ALREADY_A_STAY, THERE_EXISTS_ALREADY_A_STAY);
 					} else if (e.getClass().equals(DateNotAllowed.class)) {
-						result.rejectValue("releaseDate", "Change the dates", "Change the dates");
+						result.rejectValue(RELEASE_DATE, "Change the dates", "Change the dates");
 					} else if (e.getClass().equals(StayAlreadyConfirmed.class)) {
-						result.rejectValue("releaseDate", "Stay already confirmed or rejected by admin",
-								"Stay already confirmed or rejected by admin");
+						result.rejectValue(RELEASE_DATE, STAY_ALREADY_CONFIRMED_OR_REJECTED_BY_ADMIN,
+								STAY_ALREADY_CONFIRMED_OR_REJECTED_BY_ADMIN);
 					}
 					modelMap.put("pet", pet);
-					return "pets/createOrUpdateStayForm";
+					return PETS_CREATE_OR_UPDATE_STAY_FORM;
 				}
 			}
 			return "redirect:/owners/{ownerId}/pets/{petId}/stays";
 		} else {
-			return "redirect:/oups";
+			return REDIRECT_TO_OUPS;
 		}
 	}
 
@@ -268,8 +286,8 @@ public class StayController {
 
 		Stay stay = this.stayService.findStayById(stayId);
 		modelMap.put("stay", stay);
-		modelMap.put("status", ls);
-		return "pets/createOrUpdateStayFormAdmin";
+		modelMap.put(STATUS, ls);
+		return PETS_CREATE_OR_UPDATE_STAY_FORM_ADMIN;
 	}
 
 	@PostMapping(value = "/admin/stays/{stayId}")
@@ -286,21 +304,21 @@ public class StayController {
 		List<Status> ls = new ArrayList<Status>();
 		ls.add(Status.ACCEPTED);
 		ls.add(Status.REJECTED);
-		modelMap.put("status", ls);
+		modelMap.put(STATUS, ls);
 		if (result.hasErrors()) {
 			modelMap.put("stay", stay);
-			modelMap.put("status", ls);
-			return "pets/createOrUpdateStayFormAdmin";
+			modelMap.put(STATUS, ls);
+			return PETS_CREATE_OR_UPDATE_STAY_FORM_ADMIN;
 		} else {
 			try {
 				stay.setStatus(newStatus);
 				this.stayService.editStatus(stay);
 			} catch (StayAlreadyConfirmed e) {
-				result.rejectValue("status", "Stay already confirmed or rejected by admin",
-						"Stay already confirmed or rejected by admin");
+				result.rejectValue(STATUS, STAY_ALREADY_CONFIRMED_OR_REJECTED_BY_ADMIN,
+						STAY_ALREADY_CONFIRMED_OR_REJECTED_BY_ADMIN);
 				modelMap.put("stay", stay);
-				modelMap.put("status", ls);
-				return "pets/createOrUpdateStayFormAdmin";
+				modelMap.put(STATUS, ls);
+				return PETS_CREATE_OR_UPDATE_STAY_FORM_ADMIN;
 			}
 			return "redirect:/admin/stays";
 

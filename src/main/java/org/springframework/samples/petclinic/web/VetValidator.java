@@ -31,6 +31,9 @@ import org.springframework.validation.Validator;
  */
 public class VetValidator implements Validator {
 
+	private static final String EMPTY = "empty";
+	private static final String CANNOT_BE_EMPTY = "cannot be empty";
+
 	@Override
 	public void validate(Object obj, Errors errors) {
 
@@ -39,15 +42,15 @@ public class VetValidator implements Validator {
 		String password = vet.getUser().getPassword();
 
 		if (vet.getFirstName().isEmpty() ) {
-			errors.rejectValue("firstName", "empty", "cannot be empty");
+			errors.rejectValue("firstName", EMPTY, CANNOT_BE_EMPTY);
 		}
 
 		if (vet.getLastName().isEmpty() ) {
-			errors.rejectValue("lastName", "empty", "cannot be empty");
+			errors.rejectValue("lastName", EMPTY, CANNOT_BE_EMPTY);
 		}
 
 		if (vet.getTelephone().isEmpty() ) {
-			errors.rejectValue("telephone", "empty", "cannot be empty");
+			errors.rejectValue("telephone", EMPTY, CANNOT_BE_EMPTY);
 		}
 
 		if (!vet.getTelephone().matches("^[0-9]{9,9}$")) {
@@ -55,15 +58,15 @@ public class VetValidator implements Validator {
 		}
 
 		if (vet.getAddress().isEmpty() ) {
-			errors.rejectValue("address", "empty", "cannot be empty");
+			errors.rejectValue("address", EMPTY, CANNOT_BE_EMPTY);
 		}
 
 		if (vet.getCity().isEmpty() ) {
-			errors.rejectValue("city", "empty", "cannot be empty");
+			errors.rejectValue("city", EMPTY, CANNOT_BE_EMPTY);
 		}
 
 		if (password.isEmpty() ) {
-			errors.rejectValue("user.password", "empty", "cannot be empty");
+			errors.rejectValue("user.password", EMPTY, CANNOT_BE_EMPTY);
 		}
 
 		if (!password.matches("^(?=(.*\\d))(?=(.*[A-Za-z]))(?=(.*[\\pP]))([^\\s]){10,}$|^$")) {

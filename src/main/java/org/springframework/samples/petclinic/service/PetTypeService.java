@@ -1,5 +1,7 @@
 package org.springframework.samples.petclinic.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.samples.petclinic.model.PetType;
@@ -32,7 +34,6 @@ public class PetTypeService {
 		return this.petTypeRepository.findAll();
 	}
 	
-	@Transactional(readOnly = true)
 	public boolean typeNameDontExists(String typeName) {
 		int res = this.petTypeRepository.countTypeName(typeName);
 		return res == 0;
@@ -40,8 +41,12 @@ public class PetTypeService {
 
 	@Transactional(readOnly = true)
 	public PetType findById(Integer petTypeId) {
-
-		return this.petTypeRepository.findById(petTypeId).get();
+		PetType pt = new PetType();
+		Optional<PetType> ptOP = this.petTypeRepository.findById(petTypeId);
+		if(ptOP.isPresent()) {
+			pt = ptOP.get();
+		}
+		return pt;
 	}
 
 	@Transactional(readOnly = true)

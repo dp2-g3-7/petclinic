@@ -53,6 +53,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class VisitController {
 
+	private static final String PETS_CREATE_OR_UPDATE_VISIT_FORM = "pets/createOrUpdateVisitForm";
+
+	private static final String VISIT = "visit";
+
+	private static final String ADMIN = "admin";
+
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
 	private static final PetRegistrationStatus ACCEPTED = PetRegistrationStatus.ACCEPTED;
@@ -91,7 +97,7 @@ public class VisitController {
 	private boolean isAdmin() {
 		String authority = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
 				.collect(Collectors.toList()).get(0).toString();
-		return authority.equals("admin");
+		return authority.equals(ADMIN);
 	}
 
 	private Boolean securityAccessRequestProfile(int ownerId) {
@@ -103,7 +109,7 @@ public class VisitController {
 		if (authority.equals("owner"))
 			owner = this.ownerService.findOwnerById(ownerId);
 
-		return authority.equals("admin") || authority.equals("owner") && username.equals(owner.getUser().getUsername());
+		return authority.equals(ADMIN) || authority.equals("owner") && username.equals(owner.getUser().getUsername());
 	}
 
 	private boolean securityAccessRequestVisit(int ownerId, int petId) {
@@ -111,13 +117,13 @@ public class VisitController {
 				.collect(Collectors.toList()).get(0).toString();
 
 		boolean isHisPetAcceptedAndActive = false;
-		if (authority.equals("veterinarian") || authority.equals("admin")) {
+		if (authority.equals("veterinarian") || authority.equals(ADMIN)) {
 			Pet pet = this.petService.findPetById(petId);
 			isHisPetAcceptedAndActive = pet.getOwner().getId().equals(ownerId) && pet.isActive()
 					&& pet.getStatus().equals(ACCEPTED);
 		}
 
-		return isHisPetAcceptedAndActive && (authority.equals("admin") || authority.equals("veterinarian"));
+		return isHisPetAcceptedAndActive && (authority.equals(ADMIN) || authority.equals("veterinarian"));
 	}
 
 	/**
@@ -138,9 +144,9 @@ public class VisitController {
 		if (securityAccessRequestVisit(ownerId, petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
-			model.put("visit", visit);
+			model.put(VISIT, visit);
 			pet.addVisit(visit);
-			return "pets/createOrUpdateVisitForm";
+			return PETS_CREATE_OR_UPDATE_VISIT_FORM;
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
@@ -156,7 +162,7 @@ public class VisitController {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);
 			if (result.hasErrors()) {
-				return "pets/createOrUpdateVisitForm";
+				return PETS_CREATE_OR_UPDATE_VISIT_FORM;
 			} else {
 				this.visitService.saveVisit(visit);
 				return isAdmin()?"redirect:/appointments/"+vetId:"redirect:/appointments";
@@ -171,8 +177,8 @@ public class VisitController {
 				@PathVariable("visitId") final int visitId, final ModelMap model) {
 		model.put("edit", true);
 		Visit visit = this.visitService.findVisitById(visitId);
-		model.put("visit", visit);
-		return "pets/createOrUpdateVisitForm";
+		model.put(VISIT, visit);
+		return PETS_CREATE_OR_UPDATE_VISIT_FORM;
 
 	}
 
@@ -183,7 +189,7 @@ public class VisitController {
 		model.put("edit", true);
 		if (result.hasErrors()) {
 			model.put("edit", true);
-			return "pets/createOrUpdateVisitForm";
+			return PETS_CREATE_OR_UPDATE_VISIT_FORM;
 		} else {
 			visitToUpdate.setDescription(visit.getDescription());
 			visitToUpdate.setMedicalTests(visit.getMedicalTests());
@@ -197,7 +203,7 @@ public class VisitController {
 			final Map<String, Object> model) {
 		if (securityAccessRequestProfile(ownerId) || isAdmin()) {
 			Visit visit = this.visitService.findVisitById(visitId);
-			model.put("visit", visit);
+			model.put(VISIT, visit);
 			return "visits/visitDetails";
 		} else {
 			return REDIRECT_TO_OUPS;

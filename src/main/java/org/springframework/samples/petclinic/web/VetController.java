@@ -233,7 +233,7 @@ public class VetController {
 			mav.addObject(this.vetService.findVetById(vetId));
 			return mav;
 		} else {
-			ModelAndView mavOups = new ModelAndView("redirect:/oups");
+			ModelAndView mavOups = new ModelAndView(REDIRECT_TO_OUPS);
 			return mavOups;
 		}
 	}

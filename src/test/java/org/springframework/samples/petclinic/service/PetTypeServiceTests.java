@@ -73,7 +73,7 @@ public class PetTypeServiceTests {
 
 		Boolean exists = this.petTypeService.typeNameDontExists("cat");
 
-		assertThat(exists.equals(false));
+		assertThat(exists).isFalse();
 
 
 	}
@@ -83,11 +83,11 @@ public class PetTypeServiceTests {
 	public void PetTypeDontExists() {
 		Iterable<PetType> petTypes = this.petTypeService.findAll();
 		List<PetType> lsPetType = ((Collection<PetType>) petTypes).stream().collect(Collectors.toList());
-		assertThat(!lsPetType.contains("Shark"));
+		assertThat(lsPetType.contains("Shark")).isFalse();
 
 		Boolean exists = this.petTypeService.typeNameDontExists("Shark");
 
-		assertThat(exists.equals(true));
+		assertThat(exists).isTrue();
 
 
 	}

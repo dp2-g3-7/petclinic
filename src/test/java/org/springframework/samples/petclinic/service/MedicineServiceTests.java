@@ -79,7 +79,7 @@ class MedicineServiceTests {
 	@Test
 	void shouldFindMedicineWithCorrectId() {
 		Medicine med2 = this.medicineService.findMedicineById(2);
-		assertThat(med2.getName().contentEquals("Pet Dalsy"));
+		assertThat(med2.getName()).contains("Pet-Dalsy");
 	}
 
 	@Test
@@ -156,14 +156,14 @@ class MedicineServiceTests {
 	void shouldFindAllMedicines() {
 		Collection<Medicine> medicines = (Collection<Medicine>) this.medicineService.findAll();
 		int found = medicines.size();
-		assertThat(found == 3);
+		assertThat(found).isEqualTo(6);
 	}
 
 	@Test
 	void shouldFindUsedCode() {
 		Medicine medicine = this.medicineService.findMedicineById(1);
 		String code = medicine.getCode();
-		assertThat(this.medicineService.codeAlreadyExists(code));
+		assertThat(this.medicineService.codeAlreadyExists(code)).isTrue();
 	}
 
 	@Test
