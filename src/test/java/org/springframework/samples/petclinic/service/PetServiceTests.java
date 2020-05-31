@@ -115,15 +115,12 @@ class PetServiceTests {
 		Collection<PetType> types = this.petService.findPetTypes();
 		pet.setType(EntityUtils.getById(types, PetType.class, 2));
 		pet.setBirthDate(LocalDate.now());
-		owner6.addPet(pet);
-		assertThat(owner6.getPets().size()).isEqualTo(found + 1);
 
 		try {
-			this.petService.savePet(pet);
+			this.petService.savePet(pet, owner6);
 		} catch (DuplicatedPetNameException ex) {
 			Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		this.ownerService.saveOwner(owner6);
 
 		owner6 = this.ownerService.findOwnerById(6);
 		assertThat(owner6.getPets().size()).isEqualTo(found + 1);
@@ -142,7 +139,7 @@ class PetServiceTests {
 		pet.setBirthDate(LocalDate.now());
 		owner6.addPet(pet);
 		try {
-			petService.savePet(pet);
+			petService.savePet(pet, owner6);
 		} catch (DuplicatedPetNameException e) {
 			// The pet already exists!
 			e.printStackTrace();
@@ -154,7 +151,7 @@ class PetServiceTests {
 		anotherPetWithTheSameName.setBirthDate(LocalDate.now().minusWeeks(2));
 		Assertions.assertThrows(DuplicatedPetNameException.class, () -> {
 			owner6.addPet(anotherPetWithTheSameName);
-			petService.savePet(anotherPetWithTheSameName);
+			petService.savePet(anotherPetWithTheSameName, owner6);
 		});
 	}
 
@@ -166,7 +163,7 @@ class PetServiceTests {
 
 		String newName = oldName + "X";
 		pet7.setName(newName);
-		this.petService.savePet(pet7);
+		this.petService.EditPet(pet7);
 
 		pet7 = this.petService.findPetById(7);
 		assertThat(pet7.getName()).isEqualTo(newName);
@@ -190,8 +187,8 @@ class PetServiceTests {
 		owner6.addPet(anotherPet);
 
 		try {
-			petService.savePet(pet);
-			petService.savePet(anotherPet);
+			petService.EditPet(pet);
+			petService.EditPet(anotherPet);
 		} catch (DuplicatedPetNameException e) {
 			// The pets already exists!
 			e.printStackTrace();
@@ -199,7 +196,7 @@ class PetServiceTests {
 
 		Assertions.assertThrows(DuplicatedPetNameException.class, () -> {
 			anotherPet.setName("donatelo");
-			petService.savePet(anotherPet);
+			petService.EditPet(anotherPet);
 		});
 	}
 	

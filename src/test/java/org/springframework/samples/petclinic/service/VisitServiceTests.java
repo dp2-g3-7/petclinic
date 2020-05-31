@@ -37,7 +37,7 @@ public class VisitServiceTests {
 		visit.setDescription("test");
 		this.visitService.saveVisit(visit);
 		try {
-			this.petService.savePet(pet7);
+			this.petService.EditPet(pet7);
 		} catch (DuplicatedPetNameException ex) {
 			Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
 		}

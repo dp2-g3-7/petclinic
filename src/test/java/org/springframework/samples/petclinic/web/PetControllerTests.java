@@ -241,7 +241,10 @@ class PetControllerTests {
 		given(this.petService.petHasStaysOrAppointmentsActive(TEST_PET_ID_5)).willReturn(true);
 		
 		Mockito.doThrow(new DuplicatedPetNameException())
-		.when(this.petService).savePet(petWithSameName);
+		.when(this.petService).EditPet(petWithSameName);
+		
+		Mockito.doThrow(new DuplicatedPetNameException())
+		.when(this.petService).savePet(petWithSameName, owner1);
 
 	}
 	
