@@ -151,7 +151,7 @@ public class VisitController {
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@PathVariable("petId") final int petId,
 			@PathVariable("ownerId") final int ownerId, @Valid final Visit visit, final BindingResult result) {
-		int vetId = this.appointmentService.findAppointmentByDate(petId, visit.getDate()).getVet().getId();
+		int vetId = this.appointmentService.findAppointmentByPetAndDate(petId, visit.getDate()).getVet().getId();
 		if (securityAccessRequestVisit(ownerId, petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);

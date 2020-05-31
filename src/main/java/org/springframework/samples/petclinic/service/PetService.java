@@ -55,12 +55,13 @@ public class PetService {
 	}
 	
 	@Transactional(readOnly = true)
-	public Pet findPetById(int id) throws DataAccessException {
-		return petRepository.findPetByIdWithVisitsAppoimentsStays(id);
+	@Cacheable("petById")
+	public Pet findPetById(Integer id) throws DataAccessException {
+		return petRepository.findById(id);
 	}
-
+	
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
-	@CacheEvict(cacheNames = "allPets",allEntries = true)
+	@CacheEvict(cacheNames = {"allPets", "petById"}, allEntries = true)
 	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
 		if (existOtherPetWithSameName(pet)) {
 			throw new DuplicatedPetNameException();
