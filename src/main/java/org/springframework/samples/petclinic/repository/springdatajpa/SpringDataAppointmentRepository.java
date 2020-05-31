@@ -25,7 +25,4 @@ public interface SpringDataAppointmentRepository extends AppointmentRepository, 
 	@Query("SELECT a FROM Appointment a WHERE a.vet.id=:vetId AND a.appointmentDate>:date")
 	List<Appointment> getNextAppointmentsByVetId(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
 
-	@Query("SELECT a FROM Appointment a WHERE a.pet.id=:petId AND a.appointmentDate=:date")
-	Appointment findByDate(@Param("petId") Integer petId, @Param("date") LocalDate date);
-
 }

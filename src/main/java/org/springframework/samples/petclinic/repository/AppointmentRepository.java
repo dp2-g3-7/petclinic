@@ -27,7 +27,4 @@ public interface AppointmentRepository {
 	List<Appointment> getAppointmentsByVetAndDate(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
 
 	List<Appointment> getNextAppointmentsByVetId(@Param("vetId") Integer vetId, @Param("date") LocalDate date);
-
-	Appointment findByDate(Integer petId, LocalDate date);
-
 }

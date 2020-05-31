@@ -28,7 +28,6 @@ import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.Visit;
-import org.springframework.samples.petclinic.service.AppointmentService;
 import org.springframework.samples.petclinic.service.MedicalTestService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.PetService;
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Juergen Hoeller
@@ -63,18 +63,14 @@ public class VisitController {
 
 	private final MedicalTestService medicalTestService;
 
-	private final AppointmentService appointmentService;
-
 	private final OwnerService ownerService;
 
 	@Autowired
 	public VisitController(final VisitService visitService, final PetService petService,
-			final MedicalTestService medicalTestService, final AppointmentService appointmentService,
-			final OwnerService ownerService) {
+			final MedicalTestService medicalTestService, final OwnerService ownerService) {
 		this.visitService = visitService;
 		this.petService = petService;
 		this.medicalTestService = medicalTestService;
-		this.appointmentService = appointmentService;
 		this.ownerService = ownerService;
 	}
 
@@ -133,12 +129,13 @@ public class VisitController {
 	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
 	// called
 	@GetMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
-	public String initNewVisitForm(@PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
+	public String initNewVisitForm(@RequestParam int vetId, @PathVariable("petId") final int petId, @PathVariable("ownerId") final int ownerId,
 			final ModelMap model) {
 		if (securityAccessRequestVisit(ownerId, petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			Visit visit = new Visit();
 			model.put("visit", visit);
+			model.put("vetId", vetId);
 			pet.addVisit(visit);
 			return "pets/createOrUpdateVisitForm";
 		} else {
@@ -149,9 +146,8 @@ public class VisitController {
 	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is
 	// called
 	@PostMapping(value = "/owners/{ownerId}/pets/{petId}/visits/new")
-	public String processNewVisitForm(@PathVariable("petId") final int petId,
+	public String processNewVisitForm(@RequestParam int vetId, @PathVariable("petId") final int petId,
 			@PathVariable("ownerId") final int ownerId, @Valid final Visit visit, final BindingResult result) {
-		int vetId = this.appointmentService.findAppointmentByPetAndDate(petId, visit.getDate()).getVet().getId();
 		if (securityAccessRequestVisit(ownerId, petId) || isAdmin()) {
 			Pet pet = this.petService.findPetById(petId);
 			pet.addVisit(visit);

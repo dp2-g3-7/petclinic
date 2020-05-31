@@ -51,14 +51,16 @@ class VisitControllerE2ETests {
 	@WithMockUser(username = "vet1", password = "v3terinarian_1", authorities = "veterinarian")
 	@Test
 	void testInitNewVisitFormSuccess() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_4, TEST_PET_ID_15))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_4, TEST_PET_ID_15)
+				.param("vetId", "1"))
 				.andExpect(status().isOk()).andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
 
 	@WithMockUser(username = "vet2", password = "v3terinarian_2", authorities = "veterinarian")
 	@Test
 	void testInitNewVisitWithoutAccess() throws Exception {
-		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_3, TEST_PET_ID_20))
+		mockMvc.perform(get("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_3, TEST_PET_ID_20)
+				.param("vetId", "2"))
 				.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/oups"));
 	}
 
@@ -66,6 +68,7 @@ class VisitControllerE2ETests {
     @Test
 	void testProcessNewVisitFormSuccess() throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1)
+				.param("vetId", "1")
 				.param("name", "George").with(csrf())
 				.param("description", "Visit Description"))                                
                 .andExpect(status().is3xxRedirection())
@@ -76,7 +79,10 @@ class VisitControllerE2ETests {
 	@Test
 	void testProcessNewVisitFormHasErrors() throws Exception {
 		mockMvc.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID_1, TEST_PET_ID_1).with(csrf())
-				.param("name", "George").param("description", "")).andExpect(model().attributeHasErrors("visit"))
+				.param("vetId", "1")
+				.param("name", "George")
+				.param("description", ""))
+				.andExpect(model().attributeHasErrors("visit"))
 				.andExpect(status().isOk()).andExpect(view().name("pets/createOrUpdateVisitForm"));
 	}
 
