@@ -68,6 +68,7 @@ public class AppointmentService {
         }
     }
     
+
     @Transactional(readOnly=true)
     public Appointment getAppointmentById(int appointmentId) {
         return this.appointmentRepository.findById(appointmentId);
@@ -92,19 +93,24 @@ public class AppointmentService {
 	    return res;
     }
 
-    @Transactional(readOnly=true)
-    @Cacheable("appointmentsByVetAndDate")
+	@Transactional(readOnly = true)
+	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
+		return this.appointmentRepository.getAppointmentsTodayByVetId(vetId, date);
+	}
+
+  @Transactional(readOnly=true)
+  @Cacheable("appointmentsByVetAndDate")
 	public List<Appointment> getAppointmentsByVetAndDate(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getAppointmentsByVetAndDate(vetId, date);
 	}
 
-    @Transactional(readOnly=true)
-    @Cacheable("nextAppointmentsByVetAndDate")
+  @Transactional(readOnly=true)
+  @Cacheable("nextAppointmentsByVetAndDate")
 	public List<Appointment> getNextAppointmentsByVetId(Integer vetId, LocalDate date) {
 		return this.appointmentRepository.getNextAppointmentsByVetId(vetId, date);
 	}
-	
-    @Transactional(readOnly=true)
+
+  @Transactional(readOnly=true)
 	public Appointment findAppointmentByPetAndDate(Integer id, LocalDate date) {
 		return this.appointmentRepository.findByDate(id, date);
 	}
