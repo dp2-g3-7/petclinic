@@ -29,6 +29,8 @@ class RegistrarVeterinario extends Simulation {
 		"Proxy-Connection" -> "keep-alive",
 		"Upgrade-Insecure-Requests" -> "1")
 
+	val feeders = csv("vets.csv").random
+
 	object Home {
 		val home = exec(http("Home")
 			.get("/")
@@ -64,18 +66,19 @@ class RegistrarVeterinario extends Simulation {
 			.headers(headers_0)
 			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
 		.pause(12)
+		.feed(feeders)
 		.exec(http("NewVet")
 			.post("/vets/new")
 			.headers(headers_3)
-			.formParam("firstName", "Luna")
-			.formParam("lastName", "Rodriguez")
-			.formParam("address", "Los Rosales, 10")
-			.formParam("city", "Sevilla")
-			.formParam("telephone", "123456789")
+			.formParam("firstName", "${first_name}")
+			.formParam("lastName", "${last_name}")
+			.formParam("address", "${address}")
+			.formParam("city", "${city}")
+			.formParam("telephone", "${telephone}")
 			.formParam("specialties", "pathology")
-			.formParam("_specialties", "1")
-			.formParam("user.username", "vetluna")
-			.formParam("user.password", "v3terinarian_luna")
+			.formParam("_specialties", "${specialties}")
+			.formParam("user.username", "${username}")
+			.formParam("user.password", "${password}")
 			.formParam("_csrf", "${stoken}"))
 		.pause(10)
 	}
@@ -89,13 +92,13 @@ class RegistrarVeterinario extends Simulation {
 		.exec(http("ErrorNewVet")
 			.post("/vets/new")
 			.headers(headers_3)
-			.formParam("firstName", "Luna")
-			.formParam("lastName", "Rodriguez")
+			.formParam("firstName", "James")
+			.formParam("lastName", "Carter")
 			.formParam("address", "Los Rosales, 10")
 			.formParam("city", "Sevilla")
 			.formParam("telephone", "123456789")
 			.formParam("_specialties", "1")
-			.formParam("user.username", "vetluna")
+			.formParam("user.username", "vet1")
 			.formParam("user.password", "vetluna")
 			.formParam("_csrf", "${stoken}"))
 		.pause(10)
@@ -122,6 +125,7 @@ class RegistrarVeterinario extends Simulation {
 	.assertions(
 		global.responseTime.max.lt(5000),
 		global.responseTime.mean.lt(1000),
-		global.successfulRequests.percent.gt(95)
+		global.successfulRequests.percent.gt(95),
+		forAll.failedRequests.percent.lte(0)
 	)
 }

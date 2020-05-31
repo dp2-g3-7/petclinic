@@ -29,6 +29,8 @@ class RegistrarMedicamentos extends Simulation {
 		"Proxy-Connection" -> "keep-alive",
 		"Upgrade-Insecure-Requests" -> "1")
 
+	val feeder = csv("medicines.csv").random
+
    object Home {
 		val home = exec(http("Home")
 			.get("/")
@@ -64,17 +66,15 @@ class RegistrarMedicamentos extends Simulation {
 			.headers(headers_0)
 			check(css("input[name=_csrf]", "value").saveAs("stoken")))
 		.pause(61)
+		.feed(feeder)
 		.exec(http("AddMedicines")
 			.post("/medicines/new")
 			.headers(headers_3)
-			.formParam("name", "Medicine1")
-			.formParam("code", "FFF-202")
-			.formParam("expirationDate", "2021/02/25")
-			.formParam("description", "Medicine standar description")
+			.formParam("name", "${name}")
+			.formParam("code", "${code}")
+			.formParam("expirationDate", "${expiration_date}")
+			.formParam("description", "${description}")
 			.formParam("_csrf", "${stoken}"))
-	
-	
-	
 	}
 	
 	object DontAddMedicines{
@@ -92,10 +92,8 @@ class RegistrarMedicamentos extends Simulation {
 			.formParam("expirationDate", "2021/02/25")
 			.formParam("description", "Medicine standar description")
 			.formParam("_csrf", "${stoken}"))
-	
-	
-	
 	}
+
 	val addMedicineScn = scenario("RegistrarMedicamentos").exec(Home.home,
 																	Login.login,
 																	ListMedicines.listMedicines,
@@ -113,6 +111,7 @@ class RegistrarMedicamentos extends Simulation {
 	.assertions(
 		global.responseTime.max.lt(5000),
 		global.responseTime.mean.lt(1000),
-		global.successfulRequests.percent.gt(95)
+		global.successfulRequests.percent.gt(95),
+		forAll.failedRequests.percent.lte(0)
 	)
 }
