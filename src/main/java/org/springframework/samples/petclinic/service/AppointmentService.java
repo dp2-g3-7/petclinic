@@ -92,10 +92,10 @@ public class AppointmentService {
 	    
 	    return res;
     }
-
+    
 	@Transactional(readOnly = true)
 	public List<Appointment> getAppointmentsTodayByVetId(Integer vetId, LocalDate date) {
-		return this.appointmentRepository.getAppointmentsTodayByVetId(vetId, date);
+		return this.appointmentRepository.getAppointmentsByVetAndDate(vetId, date);
 	}
 
   @Transactional(readOnly=true)

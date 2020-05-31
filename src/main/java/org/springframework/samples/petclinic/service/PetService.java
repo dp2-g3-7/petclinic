@@ -56,8 +56,8 @@ public class PetService {
 	
 	@Transactional(readOnly = true)
 	@Cacheable("petById")
-	public Pet findPetById(Integer id) throws DataAccessException {
-		return petRepository.findById(id);
+	public Pet findPetById(Integer petId) throws DataAccessException {
+		return petRepository.findPetByIdWithVisitsAppoimentsStays(petId);
 	}
 	
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
