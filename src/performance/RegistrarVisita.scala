@@ -60,12 +60,12 @@ class RegistrarVisita extends Simulation {
 
 	object NewVisit {
 		val newVisit = exec(http("NewVisitForm")
-			.get("/owners/7/pets/20/visits/new")
+			.get("/owners/7/pets/20/visits/new?vetId=1")
 			.headers(headers_0)
 			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
 		.pause(14)
 		.exec(http("NewVisit")
-			.post("/owners/7/pets/20/visits/new")
+			.post("/owners/7/pets/20/visits/new?vetId=1")
 			.headers(headers_2)
 			.formParam("date", "2020/05/28")
 			.formParam("description", "Annual checkup: Some tests made. Everithing looks correct.")
@@ -80,12 +80,12 @@ class RegistrarVisita extends Simulation {
 
 	object ErrorNewVisit {
 		val errorNewVisit = exec(http("ErrorNewVisitForm")
-			.get("/owners/4/pets/15/visits/new")
+			.get("/owners/4/pets/15/visits/new?vetId=1")
 			.headers(headers_0)
 			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
 		.pause(6)
 		.exec(http("ErrorNewVisit")
-			.post("/owners/4/pets/15/visits/new")
+			.post("/owners/4/pets/15/visits/new?vetId=1")
 			.headers(headers_2)
 			.formParam("date", "2020/05/28")
 			.formParam("description", "")

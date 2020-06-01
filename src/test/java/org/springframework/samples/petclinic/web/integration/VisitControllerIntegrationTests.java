@@ -35,15 +35,17 @@ public class VisitControllerIntegrationTests {
 	
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 
+	private static final int TEST_VET_ID_1 = 1;
+	
 	private static final int TEST_PET_ID_1 = 1;
 	
 	private static final int TEST_PET_ID_12 = 12;
 	
 	private static final int TEST_PET_ID_15 = 15;
 	
-	private static final int TEST_PET_ID_18 = 18;
-
 	private static final int TEST_OWNER_ID_1 = 1;
+
+	private static final int TEST_OWNER_ID_4 = 4;
 	
 	private static final int TEST_VISIT_ID_1 = 1;
 
@@ -72,7 +74,7 @@ public class VisitControllerIntegrationTests {
     @Test
 	void testInitNewVisitFormSuccess() throws Exception {
     	ModelMap modelMap = new ModelMap();
-    	String view = visitController.initNewVisitForm(TEST_PET_ID_15, 4, modelMap);
+    	String view = visitController.initNewVisitForm(TEST_VET_ID_1, TEST_PET_ID_15, TEST_OWNER_ID_4, modelMap);
 		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
     	assertNotNull(modelMap.get("visit"));
 	}
@@ -89,7 +91,7 @@ public class VisitControllerIntegrationTests {
 		tests.add(medicalTestService.findMedicalTestById(1));
 		visit.setMedicalTests(tests);
 		visit.setPet(pet);
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, 1, visit, result);
+		String view = visitController.processNewVisitForm(TEST_VET_ID_1, TEST_PET_ID_1, TEST_OWNER_ID_1, visit, result);
 		Assert.assertEquals(view, "redirect:/appointments");
 	}
 
@@ -103,7 +105,7 @@ public class VisitControllerIntegrationTests {
 		visit.setMedicalTests(new ArrayList<>());
 		visit.setPet(pet);
 		result.reject("description", "no puede estar vacío");
-		String view = visitController.processNewVisitForm(TEST_PET_ID_1, 1, visit, result);
+		String view = visitController.processNewVisitForm(TEST_VET_ID_1, TEST_PET_ID_1, TEST_OWNER_ID_1, visit, result);
 		Assert.assertEquals(view, VIEWS_CREATE_OR_UPDATE_VISIT_FORM);
 	}
 
