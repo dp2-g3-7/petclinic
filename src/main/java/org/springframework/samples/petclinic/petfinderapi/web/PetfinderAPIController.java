@@ -29,6 +29,8 @@ import java.util.List;
 @Controller
 public class PetfinderAPIController {
 
+	private static final String OWNER_ID = "ownerId";
+	private static final String ERROR = "error";
 	private static final String URL_BASE = "https://api.petfinder.com/v2";
 
 	@ModelAttribute("access_token")
@@ -49,7 +51,7 @@ public class PetfinderAPIController {
             List<Type> types = results.getTypes();
             modelMap.put("types", types);
         } catch (Exception e) {
-            modelMap.put("error", "No types have been found. There may be a problem connecting to the Petfinder API.");
+            modelMap.put(ERROR, "No types have been found. There may be a problem connecting to the Petfinder API.");
         }
 
 	    return "adoptions/adoptionsSearchForm";
@@ -68,10 +70,10 @@ public class PetfinderAPIController {
             Types results = mapper.readValue(json, Types.class);
             List<Type> types = results.getTypes();
             modelMap.put("types", types);
-            modelMap.put("ownerId", ownerId);
+            modelMap.put(OWNER_ID, ownerId);
         } catch (Exception e) {
-            modelMap.put("error", "No types have been found. There may be a problem connecting to the Petfinder API.");
-            modelMap.put("ownerId", ownerId);
+            modelMap.put(ERROR, "No types have been found. There may be a problem connecting to the Petfinder API.");
+            modelMap.put(OWNER_ID, ownerId);
         }
 
 	    return "adoptions/adoptionsSearchForm";
@@ -89,10 +91,10 @@ public class PetfinderAPIController {
             Animals results = mapper.readValue(json, Animals.class);
 
             modelMap.put("animals", results.getAnimals());
-            modelMap.put("ownerId", ownerId);
+            modelMap.put(OWNER_ID, ownerId);
 		} catch (Exception e) {
 			modelMap.put("notFound", "Pets not found with these parameters.");
-			modelMap.put("ownerId", ownerId);
+			modelMap.put(OWNER_ID, ownerId);
 		}
 
 		return "adoptions/adoptionsListResult";
@@ -131,7 +133,7 @@ public class PetfinderAPIController {
 	        modelMap.put("numPhotos", results.getAnimal().getPhotos().size());
 			modelMap.put("pet", results.getAnimal());
 		}catch (Exception e) {
-            modelMap.put("error", "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
+            modelMap.put(ERROR, "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
 		}
 		
 		return "adoptions/adoptionsPetDetailsOwner";
@@ -150,10 +152,10 @@ public class PetfinderAPIController {
 	        			
 	        modelMap.put("numPhotos", results.getAnimal().getPhotos().size());
 			modelMap.put("pet", results.getAnimal());
-			modelMap.put("ownerId", ownerId);
+			modelMap.put(OWNER_ID, ownerId);
 		}catch (Exception e) {
-            modelMap.put("error", "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
-            modelMap.put("ownerId", ownerId);
+            modelMap.put(ERROR, "No details of this pet have been found. There may be a problem connecting to the Petfinder API.");
+            modelMap.put(OWNER_ID, ownerId);
 		}
 		
 		return "adoptions/adoptionsPetDetailsAdmin";

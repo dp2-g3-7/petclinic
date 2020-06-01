@@ -1,5 +1,7 @@
 package org.springframework.samples.petclinic.ui;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.NoSuchElementException;
@@ -47,6 +49,7 @@ public class UpdatePetTypeUITest {
 		driver.findElement(By.xpath("(//input[@id='name'])[2]")).clear();
 		driver.findElement(By.xpath("(//input[@id='name'])[2]")).sendKeys("shark");
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		assertEquals("shark", driver.findElement(By.linkText("shark")).getText());
 		logOut();
 	}
 
@@ -58,6 +61,7 @@ public class UpdatePetTypeUITest {
 		driver.findElement(By.linkText("dog")).click();
 		driver.findElement(By.xpath("(//input[@id='name'])[2]")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		assertFalse(driver.findElement(By.xpath("(//input[@id='name'])[2]")).getAttribute("value")=="shark");
 		logOut();
 	}
 

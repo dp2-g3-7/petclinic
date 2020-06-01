@@ -31,7 +31,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class TreatmentController {
 
-    private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
+    private static final String TREATMENT = "treatment";
+	private static final String VIEWS_TREATMENT_LIST = "treatments/listTreatments";
     private static final String VIEWS_TREATMENT_FORM = "treatments/createOrUpdateTreatmentForm";
     private static final String REDIRECT_TO_TREATMENT_SHOW = "redirect:/vets/pets/{petId}/treatments/{treatmentId}";
     private static final String REDIRECT_TO_OUPS = "redirect:/oups";
@@ -77,7 +78,7 @@ public class TreatmentController {
 	public String initNewTreatmentForm(@PathVariable("petId") final int petId, final ModelMap model) {
         Treatment treatment = new Treatment();
         treatment.setPet(this.petService.findPetById(petId));
-        model.addAttribute("treatment", treatment);
+        model.addAttribute(TREATMENT, treatment);
         return VIEWS_TREATMENT_FORM;
 	}
 
@@ -99,7 +100,7 @@ public class TreatmentController {
 			Treatment treatment = this.treatmentService.findById(treatmentId);
 			List<TreatmentHistory> treatmentHistory = this.treatmentService.findHistoryByTreatment(treatmentId);
 			modelMap.put("petId", petId);
-			modelMap.put("treatment", treatment);
+			modelMap.put(TREATMENT, treatment);
 			modelMap.put("treatmentHistory", getFinalTreatmentHistory(treatmentHistory));
 			if (treatment.getTimeLimit().isAfter(LocalDate.now())) {
 				modelMap.put("isEditableTreatment", true);
@@ -114,7 +115,7 @@ public class TreatmentController {
     public String initTreatmentEditForm(@PathVariable("petId") final int petId, @PathVariable("treatmentId") final int treatmentId, final ModelMap modelMap) {
         if (isEditableTreatment(petId, treatmentId)) {
         	Treatment treatment = this.treatmentService.findById(treatmentId);
-        	modelMap.put("treatment", treatment);
+        	modelMap.put(TREATMENT, treatment);
         	modelMap.put("edit", true);
         	Collection<Medicine> noTreatmentMedicines = new ArrayList<Medicine>(loadMedicines());
         	noTreatmentMedicines.removeAll(treatment.getMedicines());

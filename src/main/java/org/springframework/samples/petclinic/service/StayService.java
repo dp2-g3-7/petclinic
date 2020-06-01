@@ -2,6 +2,7 @@ package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Status;
@@ -59,10 +60,11 @@ public class StayService {
 
 	@Transactional
 	public void editStay(final Stay stay) throws MaximumStaysReached, DateNotAllowed, StayAlreadyConfirmed {
-
-		Stay stayToUpdate = this.stayRepository.findById(stay.getId()).get();
-//		LocalDate newDate = stay.getRegisterDate();
-//		LocalDate newDate2 = stay.getReleaseDate();
+		Optional<Stay> stayOP = this.stayRepository.findById(stay.getId());
+		Stay stayToUpdate = new Stay();
+		if(stayOP.isPresent()) {
+			stayToUpdate = stayOP.get();
+		}
 		if ((stayToUpdate.getRegisterDate().equals(stay.getRegisterDate())
 				&& stayToUpdate.getReleaseDate().equals(stay.getReleaseDate()))) {
 			throw new DateNotAllowed();
@@ -73,10 +75,6 @@ public class StayService {
 		}
 
 		else {
-//			stayToUpdate.setRegisterDate(stay.getRegisterDate());
-//			stayToUpdate.setReleaseDate(stay.getReleaseDate());
-//			stay.setRegisterDate(newDate);
-//			stay.setReleaseDate(newDate2);
 			this.stayRepository.save(stay);
 		}
 	}
@@ -91,8 +89,6 @@ public class StayService {
 		if (!stayToUpdate.getStatus().equals(Status.PENDING)) {
 			throw new StayAlreadyConfirmed();
 		} else {
-//			stayToUpdate.setStatus(stay.getStatus());
-//			stay.setStatus(stay.getStatus());
 			this.stayRepository.save(stay);
 		}
 	}

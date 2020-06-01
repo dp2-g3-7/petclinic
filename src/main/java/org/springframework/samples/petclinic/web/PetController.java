@@ -54,6 +54,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PetController {
 
+	private static final String PETS_UPDATE_PET_REQUEST = "pets/updatePetRequest";
+	private static final String ALREADY_EXISTS = "already exists";
+	private static final String DUPLICATE = "duplicate";
+	private static final String OWNER = "owner";
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 	private static final String REDIRECT_TO_OUPS = "redirect:/oups";
 	private static final PetRegistrationStatus ACCEPTED = PetRegistrationStatus.ACCEPTED;
@@ -91,7 +95,7 @@ public class PetController {
 		if (securityAccessPetRequestAndProfile(ownerId)) {
 			Pet pet = new Pet();
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			model.addAttribute("owner", owner);
+			model.addAttribute(OWNER, owner);
 			model.put("pet", pet);
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		} else {
@@ -103,7 +107,12 @@ public class PetController {
 	public String processAdoptForm(@RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		Owner owner = this.ownerService.findOwnerByUsername(username);
-		//Inicialización pet
+		this.initPet(name, type, age, owner);
+		return "redirect:/owner/requests";
+	}
+	
+	private void initPet(String name, String type, String age, Owner owner) throws DataAccessException, DuplicatedPetNameException {
+	//Inicialización pet
 		Pet petToAdopt = new Pet();
 		petToAdopt.setType(this.petType(type));
 		petToAdopt.setBirthDate(this.birtdate(age));
@@ -120,29 +129,12 @@ public class PetController {
 			petToAdopt.setName(name+"-"+entero);
 			this.petService.savePet(petToAdopt, owner);
 		}
-		return "redirect:/owner/requests";
 	}
 	
 	@PostMapping(value ="/adoptions/owner/{ownerId}/pet")
 	public String processAdoptAdminForm(@PathVariable("ownerId") int ownerId, @RequestParam String name, @RequestParam String type, @RequestParam String age,ModelMap modelMap) throws DataAccessException, DuplicatedPetNameException {
 		Owner owner = this.ownerService.findOwnerById(ownerId);
-		//Inicialización pet
-		Pet petToAdopt = new Pet();
-		petToAdopt.setType(this.petType(type));
-		petToAdopt.setBirthDate(this.birtdate(age));
-		petToAdopt.setName(name);
-		petToAdopt.setStatus(PENDING);
-		petToAdopt.setJustification("");
-		petToAdopt.setActive(true);
-		//guardado mascota
-		try {
-			this.petService.savePet(petToAdopt, owner);
-		} catch (Exception e) {
-			ThreadLocalRandom random = ThreadLocalRandom.current();
-			Integer entero= random.nextInt(0,100);
-			petToAdopt.setName(name+"-"+entero);
-			this.petService.savePet(petToAdopt, owner);
-		}
+		this.initPet(name, type, age, owner);
 		return "redirect:/owner/"+ownerId+"/requests";
 	}
 
@@ -152,7 +144,7 @@ public class PetController {
 		if (securityAccessPetRequestAndProfile(ownerId)) {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
-			model.addAttribute("owner", owner);
+			model.addAttribute(OWNER, owner);
 			if (result.hasErrors()) {
 				model.put("pet", pet);
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
@@ -163,7 +155,7 @@ public class PetController {
 					pet.setActive(true);
 					this.petService.savePet(pet, owner);
 				} catch (DuplicatedPetNameException ex) {
-					result.rejectValue("name", "duplicate", "already exists");
+					result.rejectValue("name", DUPLICATE, ALREADY_EXISTS);
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 				}
 				return isAdmin()?"redirect:/owner/{ownerId}/requests":"redirect:/owner/requests";
@@ -184,7 +176,7 @@ public class PetController {
 		if (securityAccessPetRequestAndProfile(ownerId) && isHisPetAcceptedAndAcctive) {
 			Pet pet = this.petService.findPetById(petId);
 			model.addAttribute("pet", pet);
-			model.addAttribute("owner", pet.getOwner());
+			model.addAttribute(OWNER, pet.getOwner());
 			model.addAttribute("edit", true);
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 
@@ -216,23 +208,23 @@ public class PetController {
 		if (securityAccessPetRequestAndProfile(ownerId) && isHisPetAcceptedAndAcctive) {
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 
-			model.addAttribute("owner", owner);
+			model.addAttribute(OWNER, owner);
 			model.addAttribute("edit", true);
 
 			if (result.hasErrors()) {
 				model.put("pet", pet);
 				return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 			} else {
-				BeanUtils.copyProperties(pet, petToUpdate, "id", "owner", "stays", "appointments", "visits", "status",
+				BeanUtils.copyProperties(pet, petToUpdate, "id", OWNER, "stays", "appointments", "visits", "status",
 						"justification", "active");
 				try {
 					this.petService.EditPet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
-					result.rejectValue("name", "duplicate", "already exists");
+					result.rejectValue("name", DUPLICATE, ALREADY_EXISTS);
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 				}
 
-				if (authority.equals("owner")) {
+				if (authority.equals(OWNER)) {
 					return "redirect:/owner/pets";
 				} else {
 					return "redirect:/owners/" + owner.getId();
@@ -254,7 +246,7 @@ public class PetController {
 			}	
 			model.addAttribute("pet", pet);
 			model.addAttribute("petRequest", pet);
-			return "pets/updatePetRequest";
+			return PETS_UPDATE_PET_REQUEST;
 		} else {
 			return REDIRECT_TO_OUPS;
 		}
@@ -270,15 +262,15 @@ public class PetController {
 			model.addAttribute("petRequest", petToUpdate);
 			if (result.hasErrors()) {
 				model.put("pet", pet);
-				return "pets/updatePetRequest";
+				return PETS_UPDATE_PET_REQUEST;
 			} else {
 				petToUpdate.setStatus(pet.getStatus());
 				petToUpdate.setJustification(pet.getJustification());
 				try {
 					this.petService.EditPet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
-					result.rejectValue("name", "duplicate", "already exists");
-					return "pets/updatePetRequest";
+					result.rejectValue("name", DUPLICATE, ALREADY_EXISTS);
+					return PETS_UPDATE_PET_REQUEST;
 				}
 				return "redirect:/requests";
 			}
@@ -325,7 +317,7 @@ public class PetController {
 				Owner owner = this.ownerService.findOwnerById(ownerId);
 				List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, true, owner.getId());
 				model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, owner.getId()) != 0);
-				model.addAttribute("owner", owner);
+				model.addAttribute(OWNER, owner);
 				model.addAttribute("pets", myPets);
 				return "pets/myPetsActive";
 			} else {
@@ -339,7 +331,7 @@ public class PetController {
 		Owner owner = this.ownerService.findOwnerByUsername(username);
 		List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, true, owner.getId());
 		model.addAttribute("disabled", this.petService.countMyPetsAcceptedByActive(ACCEPTED, false, owner.getId()) != 0);
-		model.addAttribute("owner", owner);
+		model.addAttribute(OWNER, owner);
 		model.addAttribute("pets", myPets);
 		return "pets/myPetsActive";
 	}
@@ -353,7 +345,7 @@ public class PetController {
 
 			Owner owner = this.ownerService.findOwnerById(ownerId);
 			List<Pet> myPets = this.petService.findMyPetsAcceptedByActive(ACCEPTED, false, ownerId);
-			model.put("owner", owner);
+			model.put(OWNER, owner);
 			model.put("pets", myPets);
 			return "pets/myPetsDisabled";
 
@@ -409,12 +401,12 @@ public class PetController {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
 		Owner owner = new Owner();
-		if (authority.equals("owner")) {
+		if (authority.equals(OWNER)) {
 			owner = this.ownerService.findOwnerById(ownerId);
 		}
 
 		return authority.equals("admin")
-				|| authority.equals("owner") && username.equals(owner.getUser().getUsername());
+				|| authority.equals(OWNER) && username.equals(owner.getUser().getUsername());
 	}
 	
 	

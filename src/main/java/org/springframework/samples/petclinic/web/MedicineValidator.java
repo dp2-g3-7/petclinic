@@ -34,6 +34,7 @@ import org.springframework.validation.Validator;
  */
 public class MedicineValidator implements Validator {
 
+	private static final String MUST_NOT_BE_EMPTY = "Must not be empty";
 	private static final String REQUIRED = "required";
 	
 	@Override
@@ -50,18 +51,18 @@ public class MedicineValidator implements Validator {
 			errors.rejectValue("expirationDate", "Expiration date must be in future", "Expiration date must be in future");
 		}
 		if (!StringUtils.hasLength(code)) {
-			errors.rejectValue("code", REQUIRED, "Must not be empty");
+			errors.rejectValue("code", REQUIRED, MUST_NOT_BE_EMPTY);
 		}
 		if (!code.matches("^[A-Z]{3}\\-\\d{3,9}$")) {
 			errors.rejectValue("code", "Must match the pattern ABC-123(456)", "Must match the pattern ABC-123(456)");
 		}
 		// name validation
 		if (!StringUtils.hasLength(name)) {
-			errors.rejectValue("name", REQUIRED,"Must not be empty");
+			errors.rejectValue("name", REQUIRED,MUST_NOT_BE_EMPTY);
 		}
 		// description validation
 		if (!StringUtils.hasLength(description)) {
-			errors.rejectValue("description", REQUIRED,"Must not be empty");
+			errors.rejectValue("description", REQUIRED,MUST_NOT_BE_EMPTY);
 		}
 	}
 

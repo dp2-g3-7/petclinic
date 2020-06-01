@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.ui;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.concurrent.TimeUnit;
@@ -51,6 +52,7 @@ public class UpdateThreatmentsUITest {
 		driver.findElement(By.id("description")).clear();
 		driver.findElement(By.id("description")).sendKeys("Description 2");
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		assertEquals("Description 2", driver.findElement(By.xpath("//table[@id='treatmentTable']/tbody/tr/td")).getText());
 		logOut();
 		
 	}
@@ -63,6 +65,7 @@ public class UpdateThreatmentsUITest {
 		driver.findElement(By.linkText("Show Treatment")).click();
 		driver.findElement(By.id("editBtn")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		assertEquals("Description 2", driver.findElement(By.xpath("//table[@id='treatmentTable']/tbody/tr/td")).getText());
 		logOut();
 	}
 	
