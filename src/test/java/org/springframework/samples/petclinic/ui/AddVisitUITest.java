@@ -70,7 +70,7 @@ public class AddVisitUITest {
 	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
 	    driver.findElement(By.xpath("//a[contains(text(),'Add visit')]")).click();
 	    driver.findElement(By.id("medicalTests1")).click();
-	    driver.findElement(By.id("medicalTests5")).click();
+	    driver.findElement(By.id("medicalTests3")).click();
 	    driver.findElement(By.xpath("//button[@type='submit']")).click();
 	    assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='visit']/div/div[2]/div/span[2]")).getText());
 	    driver.findElement(By.id("description")).click();
