@@ -16,7 +16,6 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -121,15 +120,14 @@ public class PetController {
 		petToAdopt.setStatus(PENDING);
 		petToAdopt.setJustification("");
 		petToAdopt.setActive(true);
-		owner.addPet(petToAdopt);
 		//guardado mascota
 		try {
-			this.petService.savePet(petToAdopt);
+			this.petService.savePet(petToAdopt, owner);
 		} catch (Exception e) {
 			ThreadLocalRandom random = ThreadLocalRandom.current();
 			Integer entero= random.nextInt(0,100);
 			petToAdopt.setName(name+"-"+entero);
-			this.petService.savePet(petToAdopt);
+			this.petService.savePet(petToAdopt, owner);
 		}
 	}
 	
@@ -155,8 +153,7 @@ public class PetController {
 					pet.setStatus(PENDING);
 					pet.setJustification("");
 					pet.setActive(true);
-					owner.addPet(pet);
-					this.petService.savePet(pet);
+					this.petService.savePet(pet, owner);
 				} catch (DuplicatedPetNameException ex) {
 					result.rejectValue("name", DUPLICATE, ALREADY_EXISTS);
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
@@ -221,7 +218,7 @@ public class PetController {
 				BeanUtils.copyProperties(pet, petToUpdate, "id", OWNER, "stays", "appointments", "visits", "status",
 						"justification", "active");
 				try {
-					this.petService.savePet(petToUpdate);
+					this.petService.EditPet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
 					result.rejectValue("name", DUPLICATE, ALREADY_EXISTS);
 					return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
@@ -270,7 +267,7 @@ public class PetController {
 				petToUpdate.setStatus(pet.getStatus());
 				petToUpdate.setJustification(pet.getJustification());
 				try {
-					this.petService.savePet(petToUpdate);
+					this.petService.EditPet(petToUpdate);
 				} catch (DuplicatedPetNameException ex) {
 					result.rejectValue("name", DUPLICATE, ALREADY_EXISTS);
 					return PETS_UPDATE_PET_REQUEST;
@@ -370,7 +367,7 @@ public class PetController {
 
 			} else {
 				updatePet.setActive(false);
-				this.petService.savePet(updatePet);
+				this.petService.EditPet(updatePet);
 				return "redirect:/owners/{ownerId}/pets/disabled";
 			}
 		} else {
@@ -385,7 +382,7 @@ public class PetController {
 		Boolean petIsActive = !updatePet.isActive();
 		if (securityAccessPetRequestAndProfile(ownerId) && petIsActive && updatePet.getOwner().getId().equals(ownerId)) {
 			updatePet.setActive(true);
-			this.petService.savePet(updatePet);
+			this.petService.EditPet(updatePet);
 			return isAdmin()?"redirect:/owner/{ownerId}/pets":"redirect:/owner/pets";
 		} else {
 			return REDIRECT_TO_OUPS;

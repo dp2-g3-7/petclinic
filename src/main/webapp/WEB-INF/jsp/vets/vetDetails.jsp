@@ -49,7 +49,8 @@
     <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Vet</a>
     <br>
     <sec:authorize access="hasAuthority('admin')">
-    	<a href="/appointments/${vet.id}">Show vet appointments</a>
+    	<br>
+    	<a href="/appointments/${vet.id}">Show appointments for this vet</a>
     </sec:authorize>
     
 </petclinic:layout>

@@ -110,8 +110,4 @@ public class AppointmentService {
 		return this.appointmentRepository.getNextAppointmentsByVetId(vetId, date);
 	}
 
-  @Transactional(readOnly=true)
-	public Appointment findAppointmentByPetAndDate(Integer id, LocalDate date) {
-		return this.appointmentRepository.findByDate(id, date);
-	}
 }

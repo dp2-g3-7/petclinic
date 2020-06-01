@@ -5,7 +5,7 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags" %>
 
 
-<petclinic:layout pageName="owners">
+<petclinic:layout pageName="visit">
     <jsp:body>
         <h2><c:if test="${!edit}">New </c:if>Visit</h2>
 
@@ -41,7 +41,7 @@
 
             <div class="form-group has-feedback">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <input type="hidden" name="petId" value="${visit.pet.id}"/>
+                    <input type="hidden" name="vetId" value="${vetId}"/>
                     <button class="btn btn-default" type="submit">
                     <c:choose><c:when test="${!edit}">Add Visit</c:when><c:otherwise>Update Visit</c:otherwise></c:choose>
                     </button>

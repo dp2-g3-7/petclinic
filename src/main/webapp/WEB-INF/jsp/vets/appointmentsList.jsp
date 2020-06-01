@@ -45,11 +45,10 @@
            					<c:out value="Already registered"></c:out>
            				</c:when>
            				<c:otherwise>
-                			<spring:url value="/owners/{ownerId}/pets/{petId}/visits/new" var="newVisitUrl">
-                    			<spring:param name="ownerId" value="${appointment.owner.id}"/>
-                        		<spring:param name="petId" value="${appointment.pet.id}"/>
-                    		</spring:url>
-                    		<a href="${fn:escapeXml(newVisitUrl)}" class="btn btn-default">Add visit</a>
+                			<form:form id="newVisit" action="/owners/${appointment.owner.id}/pets/${appointment.pet.id}/visits/new" method="get">
+                				<input type="hidden" name="vetId" value="${appointment.vet.id}" />
+                    			<a href="#" class="btn btn-default" onclick="document.getElementById('newVisit').submit();">Add visit</a>
+           	 				</form:form>
                     	</c:otherwise>
                     </c:choose>
                 </td>

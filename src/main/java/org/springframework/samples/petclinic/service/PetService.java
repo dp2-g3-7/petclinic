@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
@@ -62,17 +63,29 @@ public class PetService {
 	
 	@Transactional(rollbackFor = DuplicatedPetNameException.class)
 	@CacheEvict(cacheNames = {"allPets", "petById"}, allEntries = true)
-	public void savePet(Pet pet) throws DataAccessException, DuplicatedPetNameException {	
-		if (existOtherPetWithSameName(pet)) {
+	public void savePet(Pet pet, Owner owner) throws DataAccessException, DuplicatedPetNameException {	
+		if (existOtherPetWithSameName(pet, owner.getId())) {
 			throw new DuplicatedPetNameException();
 		} else {
+			owner.addPet(pet);
 			petRepository.save(pet);
 		}
 	}
-	public Boolean existOtherPetWithSameName(Pet newPet) {
+	
+	@Transactional(rollbackFor = DuplicatedPetNameException.class)
+	@CacheEvict(cacheNames = {"allPets", "petById"}, allEntries = true)
+	public void EditPet(Pet petToUpdate) throws DataAccessException, DuplicatedPetNameException{
+		if (existOtherPetWithSameName(petToUpdate, petToUpdate.getOwner().getId())) {
+			throw new DuplicatedPetNameException();
+		} else
+			petRepository.save(petToUpdate);
+		
+	}
+	
+	public Boolean existOtherPetWithSameName(Pet newPet, Integer ownerId) {
 		Boolean res= false;
 		String petName = newPet.getName().toLowerCase();
-		List<Pet> ownerPets= this.petRepository.findAllPetsByOwnerId(newPet.getOwner().getId());
+		List<Pet> ownerPets= this.petRepository.findAllPetsByOwnerId(ownerId);
 		for (Pet pet : ownerPets) {
 			String compName = pet.getName();
 			compName = compName.toLowerCase();
@@ -113,6 +126,5 @@ public class PetService {
 	public Boolean petHasStaysOrAppointmentsActive(int petId) {
 		return this.petRepository.countMyPetActiveStays(petId,LocalDate.now(),Status.ACCEPTED)>0 || this.petRepository.countMyPetActiveAppointments(petId,LocalDate.now())>0; 
 	}
-
 
 }
