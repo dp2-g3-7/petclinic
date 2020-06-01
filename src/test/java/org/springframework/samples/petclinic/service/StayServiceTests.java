@@ -87,6 +87,7 @@ class StayServiceTests {
     	BeanUtils.copyProperties(stay, s, "id", "status");
 		s.setRegisterDate(LocalDate.now().plusYears(5));
 		s.setReleaseDate(LocalDate.now().plusYears(5).plusDays(3));
+		
             try {
             	this.stayService.saveStay(s);
             } catch (MaximumStaysReached ex) {
