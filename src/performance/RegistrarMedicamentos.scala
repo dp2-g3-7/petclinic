@@ -29,7 +29,7 @@ class RegistrarMedicamentos extends Simulation {
 		"Proxy-Connection" -> "keep-alive",
 		"Upgrade-Insecure-Requests" -> "1")
 
-	val feeder = csv("medicines.csv").random
+	val feeder = csv("medicines.csv")
 
    object Home {
 		val home = exec(http("Home")
@@ -64,8 +64,8 @@ class RegistrarMedicamentos extends Simulation {
 	val addMedicines = exec(http("MedicineForm")
 			.get("/medicines/new")
 			.headers(headers_0)
-			check(css("input[name=_csrf]", "value").saveAs("stoken")))
-		.pause(61)
+			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
+		.pause(15)
 		.feed(feeder)
 		.exec(http("AddMedicines")
 			.post("/medicines/new")
@@ -74,7 +74,8 @@ class RegistrarMedicamentos extends Simulation {
 			.formParam("code", "${code}")
 			.formParam("expirationDate", "${expiration_date}")
 			.formParam("description", "${description}")
-			.formParam("_csrf", "${stoken}"))
+			.formParam("_csrf", "${stoken}")
+			.check(currentLocationRegex("http://www.dp2.com/medicines")))
 	}
 	
 	object DontAddMedicines{
@@ -82,8 +83,8 @@ class RegistrarMedicamentos extends Simulation {
 	val dontAddMedicines = exec(http("MedicineForm")
 			.get("/medicines/new")
 			.headers(headers_0)
-			check(css("input[name=_csrf]", "value").saveAs("stoken")))
-		.pause(61)
+			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
+		.pause(12)
 		.exec(http("DontAddMedicines")
 			.post("/medicines/new")
 			.headers(headers_3)
@@ -105,11 +106,11 @@ class RegistrarMedicamentos extends Simulation {
 																	DontAddMedicines.dontAddMedicines)															 
 
 	setUp(
-		addMedicineScn.inject(rampUsers(4200) during (100 seconds)),
-		dontAddMedicineScn.inject(rampUsers(4200) during (100 seconds)))
+		addMedicineScn.inject(rampUsers(1800) during (120 seconds)),
+		dontAddMedicineScn.inject(rampUsers(2000) during (100 seconds)))
 	.protocols(httpProtocol)
 	.assertions(
-		global.responseTime.max.lt(5000),
+		//global.responseTime.max.lt(5000),
 		global.responseTime.mean.lt(1000),
 		global.successfulRequests.percent.gt(95),
 		forAll.failedRequests.percent.lte(0)

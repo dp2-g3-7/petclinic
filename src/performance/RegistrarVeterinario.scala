@@ -29,7 +29,7 @@ class RegistrarVeterinario extends Simulation {
 		"Proxy-Connection" -> "keep-alive",
 		"Upgrade-Insecure-Requests" -> "1")
 
-	val feeders = csv("vets.csv").random
+	val feeders = csv("vets.csv")
 
 	object Home {
 		val home = exec(http("Home")
@@ -64,7 +64,8 @@ class RegistrarVeterinario extends Simulation {
 		val newVet = exec(http("NewVetForm")
 			.get("/vets/new")
 			.headers(headers_0)
-			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
+			.check(css("input[name=_csrf]", "value").saveAs("stoken"))
+			.check(status.is(200)))
 		.pause(12)
 		.feed(feeders)
 		.exec(http("NewVet")
@@ -79,7 +80,8 @@ class RegistrarVeterinario extends Simulation {
 			.formParam("_specialties", "${specialties}")
 			.formParam("user.username", "${username}")
 			.formParam("user.password", "${password}")
-			.formParam("_csrf", "${stoken}"))
+			.formParam("_csrf", "${stoken}")
+			.check(currentLocationRegex("http://www.dp2.com/vets/(.*)").ofType[String]))
 		.pause(10)
 	}
 
@@ -87,7 +89,8 @@ class RegistrarVeterinario extends Simulation {
 		val errorNewVet = exec(http("ErrorNewVetForm")
 			.get("/vets/new")
 			.headers(headers_0)
-			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
+			.check(css("input[name=_csrf]", "value").saveAs("stoken"))
+			.check(status.is(200)))
 		.pause(12)
 		.exec(http("ErrorNewVet")
 			.post("/vets/new")
@@ -100,7 +103,8 @@ class RegistrarVeterinario extends Simulation {
 			.formParam("_specialties", "1")
 			.formParam("user.username", "vet1")
 			.formParam("user.password", "vetluna")
-			.formParam("_csrf", "${stoken}"))
+			.formParam("_csrf", "${stoken}")
+			.check(status.is(200)))
 		.pause(10)
 	}
 
@@ -119,11 +123,11 @@ class RegistrarVeterinario extends Simulation {
 	)	
 	
 	setUp(
-		insertVetScn.inject(rampUsers(5000) during (100 seconds)),
-		errorInsertVetScn.inject(rampUsers(5000) during (100 seconds)))
+		insertVetScn.inject(rampUsers(800) during (100 seconds)),
+		errorInsertVetScn.inject(rampUsers(1000) during (100 seconds)))
 	.protocols(httpProtocol)
 	.assertions(
-		global.responseTime.max.lt(5000),
+		//global.responseTime.max.lt(5000),
 		global.responseTime.mean.lt(1000),
 		global.successfulRequests.percent.gt(95),
 		forAll.failedRequests.percent.lte(0)
