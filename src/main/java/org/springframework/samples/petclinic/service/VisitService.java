@@ -1,9 +1,11 @@
 package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.VisitRepository;
@@ -26,16 +28,18 @@ public class VisitService {
 	}
 
 	@Transactional(readOnly = true)
+	@Cacheable("countVisitsByPetAndDate")
 	public Integer countVisitsByDate(Integer petId, LocalDate date) {
 		return visitRepository.countByDate(petId, date);
 	}
 	
 	@Transactional
+	@CacheEvict(cacheNames = "countVisitsByPetAndDate", allEntries = true)
 	public void saveVisit(Visit visit) throws DataAccessException {
 		visitRepository.save(visit);
 	}
 
-	public Collection<Visit> findVisitsByPetId(int petId) {
+	public List<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
 	}
 }

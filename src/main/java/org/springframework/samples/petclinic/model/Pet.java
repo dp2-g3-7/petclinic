@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -67,13 +66,13 @@ public class Pet extends NamedEntity {
 	@JoinColumn(name = "owner_id")
 	private Owner owner;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet")
 	private Set<Visit> visits;
 	
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet")
 	private Set<Appointment> appointments;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pet")
 	private Set<Stay> stays;
 
 	public void setBirthDate(LocalDate birthDate) {
@@ -160,7 +159,7 @@ public class Pet extends NamedEntity {
 	public List<Appointment> getAppointments() {
 		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
 		sortedAppointments = sortedAppointments.stream().filter(x->!x.getAppointmentDate().isBefore(LocalDate.now())).collect(Collectors.toList());
-		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false));
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("appointmentDate", false, false)); //appointmentDate 
 		return Collections.unmodifiableList(sortedAppointments);
 	}
 	

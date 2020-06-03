@@ -12,7 +12,7 @@
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.4.RELEASE</version>
     </parent>
-    <name>petclinic</name>
+    <name>petclinic-g3-7</name>
 
     <properties>
 
@@ -31,6 +31,12 @@
         <spring-format.version>0.0.19</spring-format.version>
         <rest-assured.version>4.2.0</rest-assured.version>
         <selenium.version>3.141.59</selenium.version>
+        <cucumber.version>5.5.0</cucumber.version>
+        
+        <!-- SonarCloud -->
+        <sonar.projectKey>dp2-g3-7_petclinic</sonar.projectKey>
+  		<sonar.organization>dp2-g3-7</sonar.organization>
+  		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>
@@ -135,7 +141,7 @@
     		<artifactId>rest-assured</artifactId>
     		<version>${rest-assured.version}</version>
     		<scope>test</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
     		<groupId>io.rest-assured</groupId>
     		<artifactId>json-path</artifactId>
@@ -178,10 +184,71 @@
 		    <artifactId>json</artifactId>
 		    <version>20190722</version>
 		</dependency>
+		<!-- cucumber dependences -->
+		<dependency>
+		    <groupId>io.cucumber</groupId>
+		    <artifactId>cucumber-java</artifactId>
+		    <version>${cucumber.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.cucumber</groupId>
+		    <artifactId>cucumber-junit</artifactId>
+		    <version>${cucumber.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.cucumber</groupId>
+		    <artifactId>cucumber-spring</artifactId>
+		    <version>${cucumber.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>io.cucumber</groupId>
+		    <artifactId>cucumber-junit-platform-engine</artifactId>
+		    <version>${cucumber.version}</version>
+		</dependency>
+    	<dependency>
+			<groupId>net.masterthought</groupId>
+			<artifactId>cucumber-reporting</artifactId>
+			<version>4.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>de.monochromata.cucumber</groupId>
+			<artifactId>reporting-plugin</artifactId>
+			<version>4.0.36</version>
+		</dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- PIT Mutation Testing -->
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.5.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.12</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>org.springframework.samples.petclinic.service.StayService</param>
+                        <param>org.springframework.samples.petclinic.web.StayController</param>
+                        <param>org.springframework.samples.petclinic.service.AppointmentService</param>
+                        <param>org.springframework.samples.petclinic.web.AppointmentController</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>org.springframework.samples.petclinic.service.StayServiceTests</param>
+                        <param>org.springframework.samples.petclinic.web.StayControllerTests</param>
+                        <param>org.springframework.samples.petclinic.service.AppointmentServiceTests</param>
+                        <param>org.springframework.samples.petclinic.web.AppointmentControllerTests</param>
+                    </targetTests>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -298,8 +365,62 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
-    
+
 	<profiles>
+		<profile>
+      		<id>unit-tests</id>
+	      	<build>
+	      		<plugins>
+	      			<plugin>
+		                <groupId>org.apache.maven.plugins</groupId>
+		                <artifactId>maven-surefire-plugin</artifactId>
+		                <configuration>
+		                	<includes>
+		                		<include>**/*ValidatorTests.java</include>
+		                		<include>**/*ServiceTests.java</include>
+		                		<include>**/*ControllerTests.java</include>
+		                	</includes>
+		                </configuration>
+		            </plugin>
+	      		</plugins>
+	      	</build>
+    	</profile>
+
+    	<profile>
+      		<id>e2e-tests</id>
+	      	<build>
+	      		<plugins>
+	      			<plugin>
+		                <groupId>org.apache.maven.plugins</groupId>
+		                <artifactId>maven-surefire-plugin</artifactId>
+		                <configuration>
+		                	<includes>
+		                		<include>**/*E2ETests.java</include>
+		                		<include>**/*APITest.java</include>
+		                	</includes>
+		                </configuration>
+		            </plugin>
+	      		</plugins>
+	      	</build>
+    	</profile>
+
+		<profile>
+      		<id>integration-tests</id>
+	      	<build>
+	      		<plugins>
+	      			<plugin>
+		                <groupId>org.apache.maven.plugins</groupId>
+		                <artifactId>maven-surefire-plugin</artifactId>
+		                <configuration>
+		                	<includes>
+		                		<include>**/*IntegrationTests.java</include>
+		                	</includes>
+		                </configuration>
+		            </plugin>
+	      		</plugins>
+	      	</build>
+    	</profile>
+
 		<profile>
 			<id>AcceptanceTests</id>
 			<build>
@@ -324,7 +445,7 @@
 						</executions>
 						<configuration>
 							<includes>
-								<include>**/*UITest.java</include>
+								<include>**/CucumberUITest.java</include>
 							</includes>
 						</configuration>
 					</plugin>
@@ -351,6 +472,6 @@
 				</plugins>
 			</build>
 		</profile>
-	</profiles>	
+	</profiles>
 
 </project>

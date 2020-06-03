@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/medical-tests")
 public class MedicalTestController {
 
+	private static final String MEDICAL_TEST = "medicalTest";
+
 	private static final String VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM = "medical-tests/createOrUpdateMedicalTestForm";
 
 	private final MedicalTestService medicalTestService;
@@ -39,14 +41,14 @@ public class MedicalTestController {
 	@GetMapping(value = "/new")
 	public String initCreationForm(Map<String, Object> model) {
 		MedicalTest medicalTest = new MedicalTest();
-		model.put("medicalTest", medicalTest);
+		model.put(MEDICAL_TEST, medicalTest);
 		return VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM;
 	}
 	
 	@PostMapping(value = "/new")
 	public String processCreationFrom(@Valid MedicalTest medicalTest, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
-			model.put("medicalTest", medicalTest);
+			model.put(MEDICAL_TEST, medicalTest);
 			return VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM;
 		} else {
 			this.medicalTestService.saveMedicalTest(medicalTest);
@@ -57,14 +59,14 @@ public class MedicalTestController {
 	@GetMapping(value = "/{medicalTestId}/edit")
 	public String initUpdateForm(@PathVariable("medicalTestId") final int medicalTestId, final Map<String, Object> model) {
 		MedicalTest medicalTest = this.medicalTestService.findMedicalTestById(medicalTestId);
-		model.put("medicalTest", medicalTest);
+		model.put(MEDICAL_TEST, medicalTest);
 		return VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM;
 	}
 	
 	@PostMapping(value = "/{medicalTestId}/edit")
 	public String processUpdateFrom(@PathVariable("medicalTestId") final int medicalTestId, @Valid MedicalTest medicalTest, BindingResult result, ModelMap model) {
 		if (result.hasErrors()) {
-			model.put("medicalTest", medicalTest);
+			model.put(MEDICAL_TEST, medicalTest);
 			return VIEWS_MEDICAL_TEST_CREATE_OR_UPDATE_FORM;
 		} else {
 			MedicalTest medicalTestToUpdate = this.medicalTestService.findMedicalTestById(medicalTestId);

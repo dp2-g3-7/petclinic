@@ -43,8 +43,14 @@
         </tr>
         <tr>           
         	<td>
+        		<br>
+                <a href="<spring:url value="/vets/pets" htmlEscape="true" />">Show all pets</a>
+        	</td> 
+        </tr>
+        <!-- <tr>           
+        	<td>
                 <a href="<spring:url value="/vets.xml" htmlEscape="true" />">View as XML</a>
         	</td> 
-        </tr>																																							           
+        </tr>	-->																																						           
     </table>
 </petclinic:layout>

@@ -87,6 +87,7 @@ class StayServiceTests {
     	BeanUtils.copyProperties(stay, s, "id", "status");
 		s.setRegisterDate(LocalDate.now().plusYears(5));
 		s.setReleaseDate(LocalDate.now().plusYears(5).plusDays(3));
+		
             try {
             	this.stayService.saveStay(s);
             } catch (MaximumStaysReached ex) {
@@ -154,7 +155,7 @@ class StayServiceTests {
 	
 	@Test
 	void shouldFindAllStays() {
-		assertThat(this.stayService.findAllStays().size()).isEqualTo(3);
+		assertThat(this.stayService.findAllStays().size()).isEqualTo(4);
 	}
 	
 	@Test
@@ -163,6 +164,7 @@ class StayServiceTests {
 		Pet pet = this.petService.findPetById(7);
 		int numStays = pet.getStays().size();
 		try {
+			pet.deleteStay(stay);
 			this.stayService.deleteStay(stay);
 		} catch (StayAlreadyConfirmed e) {
 			e.printStackTrace();

@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -22,6 +23,7 @@ import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Status;
 
 /**
  * Repository class for <code>Pet</code> domain objects All method names are compliant
@@ -61,12 +63,18 @@ public interface PetRepository {
 
 	List<Pet> findPetsRequests(PetRegistrationStatus pending);
 
-	List<Pet> findPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId);
+	List<Pet> findMyPetsRequests(PetRegistrationStatus pending, PetRegistrationStatus rejected, Integer ownerId);
 
 	List<Pet> findMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
 
 	int countMyPetsAcceptedByActive(PetRegistrationStatus accepted, boolean active, Integer ownerId);
 
 	List<Pet> findAllPetsByOwnerId(Integer owner);
+	
+	int countMyPetActiveStays(int petId, LocalDate date, Status status);
+	
+	int countMyPetActiveAppointments(int petId, LocalDate date);
+	
+	Pet findPetByIdWithVisitsAppoimentsStays(Integer petId);
 
 }

@@ -9,18 +9,6 @@
 
 
 <petclinic:layout pageName="stays">
-	<jsp:attribute name="customScript">
-        <script>
-									$(function() {
-										$("#registerDate").datepicker({
-											dateFormat : 'yy/mm/dd'
-										});
-										$("#releaseDate").datepicker({
-											dateFormat : 'yy/mm/dd'
-										});
-									});
-								</script>
-    </jsp:attribute>
 	<jsp:body>
         <h2>Stay</h2>
 
@@ -49,11 +37,11 @@
             <div class="form-group has-feedback">
             
                 <petclinic:inputField  label="Register date"
-					name="registerDate" />
+					name="registerDate" readonly="true"/>
                 <petclinic:inputField label="Release date"
-					name="releaseDate" />          
-               <petclinic:selectField  label="Status" name="status"
-						names="${status}" size="2"></petclinic:selectField>
+					name="releaseDate" readonly="true"/>          
+                <petclinic:selectField  label="Status" name="status"
+						names="${status}" size="1"></petclinic:selectField>
             </div>
             <div class="form-group">
                  <div class="col-sm-offset-2 col-sm-10">

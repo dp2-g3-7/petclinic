@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -113,15 +115,12 @@ class PetServiceTests {
 		Collection<PetType> types = this.petService.findPetTypes();
 		pet.setType(EntityUtils.getById(types, PetType.class, 2));
 		pet.setBirthDate(LocalDate.now());
-		owner6.addPet(pet);
-		assertThat(owner6.getPets().size()).isEqualTo(found + 1);
 
 		try {
-			this.petService.savePet(pet);
+			this.petService.savePet(pet, owner6);
 		} catch (DuplicatedPetNameException ex) {
 			Logger.getLogger(PetServiceTests.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		this.ownerService.saveOwner(owner6);
 
 		owner6 = this.ownerService.findOwnerById(6);
 		assertThat(owner6.getPets().size()).isEqualTo(found + 1);
@@ -140,7 +139,7 @@ class PetServiceTests {
 		pet.setBirthDate(LocalDate.now());
 		owner6.addPet(pet);
 		try {
-			petService.savePet(pet);
+			petService.savePet(pet, owner6);
 		} catch (DuplicatedPetNameException e) {
 			// The pet already exists!
 			e.printStackTrace();
@@ -152,7 +151,7 @@ class PetServiceTests {
 		anotherPetWithTheSameName.setBirthDate(LocalDate.now().minusWeeks(2));
 		Assertions.assertThrows(DuplicatedPetNameException.class, () -> {
 			owner6.addPet(anotherPetWithTheSameName);
-			petService.savePet(anotherPetWithTheSameName);
+			petService.savePet(anotherPetWithTheSameName, owner6);
 		});
 	}
 
@@ -164,7 +163,7 @@ class PetServiceTests {
 
 		String newName = oldName + "X";
 		pet7.setName(newName);
-		this.petService.savePet(pet7);
+		this.petService.EditPet(pet7);
 
 		pet7 = this.petService.findPetById(7);
 		assertThat(pet7.getName()).isEqualTo(newName);
@@ -175,7 +174,7 @@ class PetServiceTests {
 	public void shouldThrowExceptionUpdatingPetsWithTheSameName() {
 		Owner owner6 = this.ownerService.findOwnerById(6);
 		Pet pet = new Pet();
-		pet.setName("wario");
+		pet.setName("donatelo");
 		Collection<PetType> types = this.petService.findPetTypes();
 		pet.setType(EntityUtils.getById(types, PetType.class, 2));
 		pet.setBirthDate(LocalDate.now());
@@ -188,16 +187,16 @@ class PetServiceTests {
 		owner6.addPet(anotherPet);
 
 		try {
-			petService.savePet(pet);
-			petService.savePet(anotherPet);
+			petService.EditPet(pet);
+			petService.EditPet(anotherPet);
 		} catch (DuplicatedPetNameException e) {
 			// The pets already exists!
 			e.printStackTrace();
 		}
 
 		Assertions.assertThrows(DuplicatedPetNameException.class, () -> {
-			anotherPet.setName("wario");
-			petService.savePet(anotherPet);
+			anotherPet.setName("donatelo");
+			petService.EditPet(anotherPet);
 		});
 	}
 	
@@ -249,4 +248,16 @@ class PetServiceTests {
 		assertThat(myPetsAcceptedAndDisabled).isEqualTo(1);
 	}
     
+	@ParameterizedTest
+	@ValueSource(ints={1,14,21})
+	void testStaysOrAppointmentActive(int petId) {
+		boolean res = this.petService.petHasStaysOrAppointmentsActive(petId);
+		assertThat(res).isTrue();
+	}
+	
+	@Test
+	void testNotStaysOrAppointmentsActive() {
+		boolean res = this.petService.petHasStaysOrAppointmentsActive(7);
+		assertThat(res).isFalse();
+	}
 }

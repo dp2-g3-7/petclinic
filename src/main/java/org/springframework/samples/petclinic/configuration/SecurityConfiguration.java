@@ -26,6 +26,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+	private static final String VETERINARIAN = "veterinarian";
+	private static final String OWNER = "owner";
+	private static final String ADMIN = "admin";
 	@Autowired
 	DataSource dataSource;
 	
@@ -34,20 +37,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 				.antMatchers("/resources/**","/webjars/**","/h2-console/**").permitAll()
 				.antMatchers(HttpMethod.GET, "/","/oups").permitAll()
-				.antMatchers("/adoptions/**").hasAnyAuthority("owner")
-				.antMatchers("/admin/**").hasAnyAuthority("admin")
-				.antMatchers("/banners/**").hasAnyAuthority("admin")
-				.antMatchers("/requests/**").hasAnyAuthority("admin")
-				.antMatchers("/owner/**").hasAnyAuthority("owner")
-				.antMatchers("/owners/**").hasAnyAuthority("admin","owner","veterinarian")				
-				.antMatchers("/vets/**").hasAnyAuthority("admin","veterinarian")
-				.antMatchers("/users/**").hasAnyAuthority("owner","veterinarian")
-				.antMatchers(HttpMethod.POST,"/owners/**").hasAnyAuthority("admin")
-				.antMatchers("/medicines/**").hasAnyAuthority("admin")	
-				.antMatchers("/stays/**").hasAnyAuthority("owner")
-				.antMatchers("/pet-type/**").hasAnyAuthority("admin")
-				.antMatchers("/medical-tests/**").hasAnyAuthority("admin")
-				.antMatchers("/appointments/**").hasAnyAuthority("veterinarian")
+				.antMatchers("/adoptions/owner/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/adoptions/**").hasAnyAuthority(OWNER, ADMIN)
+				.antMatchers("/admin/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/banners/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/requests/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/owner/**").hasAnyAuthority(ADMIN,OWNER)
+				.antMatchers("/owners/**").hasAnyAuthority(ADMIN,OWNER,VETERINARIAN)				
+				.antMatchers("/vets/**").hasAnyAuthority(ADMIN,VETERINARIAN)
+				.antMatchers("/users/**").hasAnyAuthority(OWNER,VETERINARIAN)
+				.antMatchers(HttpMethod.POST,"/owners/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/medicines/**").hasAnyAuthority(ADMIN)	
+				.antMatchers("/stays/**").hasAnyAuthority(ADMIN,OWNER)
+				.antMatchers("/pet-type/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/medical-tests/**").hasAnyAuthority(ADMIN)
+				.antMatchers("/appointments/**").hasAnyAuthority(ADMIN,VETERINARIAN)
 				.anyRequest().denyAll()
 				.and()
 				 	.formLogin()

@@ -1,10 +1,14 @@
 package org.springframework.samples.petclinic.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.repository.PetTypeRepository;
 import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PetTypeService {
@@ -16,6 +20,7 @@ public class PetTypeService {
 		this.petTypeRepository = petTypeRepository;
 	}
 	
+	@CacheEvict(cacheNames = "petTypes", allEntries = true)
 	public void addPetType(PetType petType) throws DuplicatedPetNameException{
 		if(!typeNameDontExists(petType.getName())) {
 			throw new DuplicatedPetNameException();
@@ -24,6 +29,7 @@ public class PetTypeService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public Iterable<PetType> findAll() {
 		return this.petTypeRepository.findAll();
 	}
@@ -33,8 +39,20 @@ public class PetTypeService {
 		return res == 0;
 	}
 
+	@Transactional(readOnly = true)
 	public PetType findById(Integer petTypeId) {
-		
-		return this.petTypeRepository.findById(petTypeId).get();
+		PetType pt = new PetType();
+		Optional<PetType> ptOP = this.petTypeRepository.findById(petTypeId);
+		if(ptOP.isPresent()) {
+			pt = ptOP.get();
+		}
+		return pt;
 	}
+
+	@Transactional(readOnly = true)
+	public PetType findByName(String petType) {
+		return this.petTypeRepository.findByName(petType);
+	}
+
+
 }

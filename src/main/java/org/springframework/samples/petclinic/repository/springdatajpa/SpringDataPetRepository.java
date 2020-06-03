@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.repository.springdatajpa;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -24,6 +25,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Status;
 import org.springframework.samples.petclinic.repository.PetRepository;
 
 /**
@@ -42,9 +44,10 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
 	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending);
 	
 	@Query("SELECT p FROM Pet p WHERE (p.status=:pending OR p.status=:rejected) AND p.owner.id=:ownerId")
-	List<Pet> findPetsRequests(@Param("pending") PetRegistrationStatus pending, @Param("rejected") PetRegistrationStatus rejected, @Param("ownerId") Integer ownerId);
+	List<Pet> findMyPetsRequests(@Param("pending") PetRegistrationStatus pending, @Param("rejected") PetRegistrationStatus rejected, @Param("ownerId") Integer ownerId);
 	
-	@Query("SELECT p FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
+	@Query("SELECT DISTINCT p FROM Pet p LEFT JOIN FETCH p.visits v LEFT JOIN FETCH p.appointments a LEFT JOIN FETCH p.stays s"
+			+ " WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
 	List<Pet> findMyPetsAcceptedByActive(@Param("accepted") PetRegistrationStatus accepted, @Param("active") boolean active, @Param("ownerId") Integer ownerId);
 
 	@Query("SELECT COUNT(p) FROM Pet p WHERE p.status=:accepted AND p.active=:active AND p.owner.id=:ownerId")
@@ -52,5 +55,15 @@ public interface SpringDataPetRepository extends PetRepository, Repository<Pet, 
 
 	@Query("SELECT p FROM Pet p WHERE p.owner.id=:ownerId")
 	List<Pet> findAllPetsByOwnerId(@Param("ownerId") Integer ownerId);
+	
+	@Query("SELECT COUNT(s) FROM Stay s WHERE s.pet.id=:petId AND s.releaseDate>=:date AND s.status=:status")
+	int countMyPetActiveStays(@Param("petId") int petId, @Param("date") LocalDate date, @Param("status") Status status);
+	
+	@Query("SELECT COUNT(a) FROM Appointment a WHERE a.pet.id=:petId AND a.appointmentDate>=:date")
+	int countMyPetActiveAppointments(@Param("petId") int petId, @Param("date") LocalDate date);
+	
+	@Query("SELECT DISTINCT p FROM Pet p LEFT JOIN FETCH p.visits v LEFT JOIN FETCH p.appointments a LEFT JOIN FETCH p.stays s WHERE p.id=:petId")
+	Pet findPetByIdWithVisitsAppoimentsStays(@Param("petId") Integer petId);
 
+	
 }

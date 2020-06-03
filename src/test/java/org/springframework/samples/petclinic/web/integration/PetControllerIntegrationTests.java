@@ -1,19 +1,27 @@
 package org.springframework.samples.petclinic.web.integration;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
 import java.util.Collections;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetRegistrationStatus;
 import org.springframework.samples.petclinic.service.PetService;
+import org.springframework.samples.petclinic.service.exceptions.DuplicatedPetNameException;
 import org.springframework.samples.petclinic.web.PetController;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -28,6 +36,7 @@ public class PetControllerIntegrationTests {
 	private static final int TEST_OWNER_ID1 = 1;
 	private static final int TEST_OWNER_ID2 = 2;
 	private static final int TEST_OWNER_ID3 = 3;
+	private static final int TEST_OWNER_ID10 = 10;
 
 	private static final int TEST_PET_ID_1 = 1;
 	private static final int TEST_PET_ID_2 = 2;
@@ -35,6 +44,8 @@ public class PetControllerIntegrationTests {
 	private static final int TEST_PET_ID_4 = 4;
 	private static final int TEST_PET_ID_5 = 5;
 	private static final int TEST_PET_ID_7 = 7;
+	private static final int TEST_PET_ID_13 = 13;
+	private static final int TEST_PET_ID_14 = 14;
 	private static final int TEST_PET_ID_17 = 17;
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
@@ -72,31 +83,23 @@ public class PetControllerIntegrationTests {
 	}
 
 	
+	
 	//Usuario que cumple la seguridad
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-    @Test
-	void testProcessCreationFormSuccess() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'Rositis','redirect:/owner/requests'",
+		"'Leo','pets/createOrUpdatePetForm'"
+	})
+	void testProcessCreationFormSuccessAndCatchException(String name, String view) throws Exception {
     	Pet newPet=new Pet();
-    	newPet.setName("Rositis");
+    	newPet.setName(name);
 		newPet.setType(petService.findPetTypes().iterator().next());
 		newPet.setBirthDate(LocalDate.now());    	
 		
-		String view=petController.processCreationForm(TEST_OWNER_ID1, newPet, result, model);
+		String expectedView=petController.processCreationForm(TEST_OWNER_ID1, newPet, result, model);
     	
-		assertEquals(view,"redirect:/owner/requests");
-	}
-	
-	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
-    @Test
-	void testProcessCreationFormCatchException() throws Exception {
-    	Pet newPet=new Pet();
-    	newPet.setName("Leo");
-		newPet.setType(petService.findPetTypes().iterator().next());
-		newPet.setBirthDate(LocalDate.now());    	
-		
-		String view=petController.processCreationForm(TEST_OWNER_ID1, newPet, result, model);
-    	
-		assertEquals(view, VIEWS_PETS_CREATE_OR_UPDATE_FORM);				
+		assertEquals(expectedView, view);				
 	}
 
 	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
@@ -157,31 +160,20 @@ public class PetControllerIntegrationTests {
 	
 	//Usuario que cumple la seguridad
 	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
-	@Test
-	void testProcessUpdateFormSuccess() throws Exception {
+	@ParameterizedTest
+	@CsvSource({
+		"'Mini','redirect:/owner/pets'",
+		"'Nina','pets/createOrUpdatePetForm'"
+	})
+	void testProcessUpdateFormSuccessAndCatchException(String name, String view) throws Exception {
     	Pet updateSara= new Pet();
-    	updateSara.setName("Mini");
+    	updateSara.setName(name);
     	updateSara.setType(petService.findPetTypes().iterator().next());
     	updateSara.setBirthDate(LocalDate.now());    	
 		
-		String view=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
+		String expectedView=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
 		
-		assertEquals(view, "redirect:/owner/pets");
-		assertNotNull(model.get("owner"));
-		assertNotNull(model.get("edit"));
-	}
-	
-	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
-	@Test
-	void testProcessUpdateFormCatchException() throws Exception {
-    	Pet updateSara= new Pet();
-    	updateSara.setName("Nina");
-    	updateSara.setType(petService.findPetTypes().iterator().next());
-    	updateSara.setBirthDate(LocalDate.now());    	
-		
-		String view=petController.processUpdateForm(TEST_OWNER_ID2, updateSara, result, TEST_PET_ID_17, model);
-		
-		assertEquals(view, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+		assertEquals(expectedView, view);
 		assertNotNull(model.get("owner"));
 		assertNotNull(model.get("edit"));
 	}
@@ -237,8 +229,6 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID1, TEST_PET_ID_2, model);
 		
 		assertEquals(view, "pets/updatePetRequest");
-		assertNotNull(model.get("rejected"));
-		assertNotNull(model.get("status"));
 		assertNotNull(model.get("pet"));
 		assertNotNull(model.get("petRequest"));
 	}
@@ -250,7 +240,6 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID1, TEST_PET_ID_3, model);
 		
 		assertEquals(view, "pets/updatePetRequest");
-		assertNotNull(model.get("status"));
 		assertNotNull(model.get("pet"));
 		assertNotNull(model.get("petRequest"));
 	}
@@ -262,18 +251,17 @@ public class PetControllerIntegrationTests {
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID3, TEST_PET_ID_4, model);
 		
 		assertEquals(view, "pets/updatePetRequest");
-		assertNotNull(model.get("status"));
 		assertNotNull(model.get("pet"));
 		assertNotNull(model.get("petRequest"));
 	}
-	//Usuario que NO cumple la seguridad
+
 	@WithMockUser(username = "admin", password = "4dm1n", authorities = "admin")
 	@Test
 	void testUpdatePetRequestNotPending() {
 		
 		String view = this.petController.showAndUpdatePetRequest(TEST_OWNER_ID3, TEST_PET_ID_5, model);
 		
-		assertEquals(view, REDIRECT_TO_OUPS);
+		assertEquals(view, "pets/updatePetRequest");
 	}
 	
 
@@ -378,8 +366,10 @@ public class PetControllerIntegrationTests {
 	//Usuario que SI cumple la seguridad con pets disabled
 	@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
 	@Test
-	void testShowMyPetsDisabled() {
+	void testShowMyPetsDisabled() throws DataAccessException, DuplicatedPetNameException {
 		
+		//Llamamos a este método primero porque se le deshabilita en el método de admin
+		String view1 = this.petController.processDisablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
 		String view = this.petController.showMyPetsDisabled(TEST_OWNER_ID3, model);
 		
 		assertEquals(view, "pets/myPetsDisabled");	
@@ -396,5 +386,73 @@ public class PetControllerIntegrationTests {
 		
 		assertEquals(view, REDIRECT_TO_OUPS);	
 	}
+	
+	// TEST para dar de baja a una mascota
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner10", password = "0wn3333r_10", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsInactive() throws DataAccessException, DuplicatedPetNameException {
+		
+		String view = this.petController.processDisablePet(TEST_OWNER_ID10, TEST_PET_ID_13, model);
+		
+		assertEquals(view,"redirect:/owners/{ownerId}/pets/disabled");
+		assertFalse(this.petService.findPetById(TEST_PET_ID_13).isActive());
+	}
+	
+	// TEST para usuarios que SI cumplen la seguridad
+	@WithMockUser(username = "owner2", password = "0wn3333r_2", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsActive() throws DataAccessException, DuplicatedPetNameException {
+
+		String view = this.petController.processDisablePet(TEST_OWNER_ID2, TEST_PET_ID_14, model);
+		
+		assertEquals(view,"pets/myPetsActive");
+		assertTrue(this.petService.findPetById(TEST_PET_ID_14).isActive());
+	}
+	
+	// TEST para usuarios que NO cumplen la seguridad
+	@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+	@Test
+	void testDisablePetStaysOrAppointmentsWithoutAccess() throws DataAccessException, DuplicatedPetNameException {
+
+		String view = this.petController.processDisablePet(TEST_OWNER_ID2, TEST_PET_ID_14, model);
+		
+		assertEquals(view,REDIRECT_TO_OUPS);
+	}
+	
+	// TEST para usuarios que SI cumplen la seguridad
+		@WithMockUser(username = "owner3", password = "0wn3333r_3", authorities = "owner")
+		@Test
+		void testEnablePet() throws DataAccessException, DuplicatedPetNameException {
+			
+			//Llamamos a este método primero porque se le deshabilita en el método de admin
+			String view1 = this.petController.processDisablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			String view = this.petController.processEnablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			
+			assertEquals(view,"redirect:/owner/pets");
+			assertTrue(this.petService.findPetById(TEST_PET_ID_5).isActive());
+		}
+		
+		// TEST para usuarios que SI cumplen la seguridad
+		@WithMockUser(username = "admin1", password = "4dm1n", authorities = "admin")
+		@Test
+		void testEnablePetAdmin() throws DataAccessException, DuplicatedPetNameException {
+			
+			String view = this.petController.processEnablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			
+			assertEquals(view,"redirect:/owner/{ownerId}/pets");
+			assertTrue(this.petService.findPetById(TEST_PET_ID_5).isActive());
+		}
+		
+		// TEST para usuarios que NO cumplen la seguridad
+		@WithMockUser(username = "owner1", password = "0wn3333r_1", authorities = "owner")
+		@Test
+		void testEnablePetWithoutAccess() throws DataAccessException, DuplicatedPetNameException {
+
+			String view = this.petController.processEnablePet(TEST_OWNER_ID3, TEST_PET_ID_5, model);
+			
+			assertEquals(view,REDIRECT_TO_OUPS);
+		}
 }
 

@@ -100,15 +100,18 @@ INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (19, 'Chispa', '2011-09-03', 0, '', true , 7, 8);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (20, 'Luna', '2018-01-30', 0, '', true , 1, 7);
 INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (21, 'Romeo', '2019-02-18', 0, '', true , 5, 9);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (22, 'Dob', '2013-02-18', 0, '', true , 5, 2);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (23, 'Jowel', '2010-04-07', 0, '', false , 2, 10);
+INSERT INTO pets(id,name,birth_date,status,justification,active,type_id,owner_id) VALUES (24, 'Jowellsito', '2013-04-07', 0, '', true , 2, 10);
 
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',6,7,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (1,'2019-01-01','2018-12-20','Rabies shot',3,7,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (2,'2019-01-02','2018-12-13','Rabies shot',6,8,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (3,'2019-01-15','2019-01-02','Neutering',6,8,1);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2019-01-24','2019-01-11','Sterilization',6,7,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (4,'2019-01-24','2019-01-11','Sterilization',3,7,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (5,'2020-04-20','2020-03-27','Medical appointment',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (6,'2020-06-30','2020-03-27','Radiographic study',1,1,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (7,'2020-08-30','2020-03-27','Fracture treatment',1,1,1);
-INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (8,'2020-05-01','2020-03-27','Dental checkup',2,2,1);
+INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (8,'2020-08-30','2020-03-27','Dental checkup',1,2,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (9,'2020-05-01','2020-03-27','Medical appointment',10,12,1);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (10,ADDDATE(CURRENT_DATE, 2),'2020-03-27','Radiographic study',1,1,2);
 INSERT INTO appointments(id,appointment_date,appointment_request_date,description,owner_id,pet_id,vet_id) VALUES (11,CURRENT_DATE,'2020-03-27','Fracture treatment',1,1,2);
@@ -165,6 +168,7 @@ INSERT INTO banners(id, picture, slogan, target_url, organization_name, init_col
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (1,1, '2020-10-01', '2020-10-05',0);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (2,7, '2020-10-01', '2020-10-05',2);
 INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (3,7, '2020-11-01', '2020-11-05',2);
+INSERT INTO stays(id,pet_id,register_date,release_date,status) VALUES (4,21, '2020-10-01', '2020-10-05',0);
 
 INSERT INTO treatments(id,name,description,time_limit,pet_id) VALUES (1,'Treatment 1', 'Description 1','2020-10-01',1);
 
